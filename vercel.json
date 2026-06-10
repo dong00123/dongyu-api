@@ -5,7 +5,7 @@
     { "src": "/(.*)", "dest": "/$1" }
   ],
   "functions": {
-    "api/search.js": {
+    "api/index.js": {
       "maxDuration": 30
     }
   }
