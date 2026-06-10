@@ -1,20 +1,15 @@
 import express from 'express';
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 
-// 设置 CORS 头
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-    next();
-});
-
+// 中间件：解析 JSON 请求体
 app.use(express.json());
 
+// 1. 先托管静态文件（把 public 文件夹里的内容暴露出去）
+// 这样访问根路径 / 时，会自动返回 public/index.html
+app.use(express.static('public'));
+
+// 2. 处理 API 请求
 app.post('/api', async (req, res) => {
     const { query } = req.body;
     if (!query || !query.trim()) {
@@ -48,15 +43,11 @@ app.post('/api', async (req, res) => {
         const answer = data.choices?.[0]?.message?.content || '未获取到回答';
 
         res.status(200).json({ answer });
-
     } catch (error) {
         console.error('API 错误:', error);
-        res.status(500).json({ error: '搜索服务暂时不可用，请稍后重试' });
+        res.status(500).json({ error: '搜索服务暂时不可用，请稍后再试' });
     }
 });
-
-// 托管静态文件（你的前端页面）
-app.use(express.static('public'));
 
 // 启动服务
 app.listen(port, () => {
