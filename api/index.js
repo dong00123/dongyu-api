@@ -1,19 +1,21 @@
-export default async function handler(req, res) {
-    // 设置 CORS 头
+import express from 'express';
+const app = express();
+const port = process.env.PORT || 3000;
+
+// 设置 CORS 头
+app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    // 处理预检请求
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
+    next();
+});
 
-    // 只允许 POST 请求
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: '只允许 POST 请求' });
-    }
+app.use(express.json());
 
+app.post('/api', async (req, res) => {
     const { query } = req.body;
     if (!query || !query.trim()) {
         return res.status(400).json({ error: '搜索内容不能为空' });
@@ -51,4 +53,12 @@ export default async function handler(req, res) {
         console.error('API 错误:', error);
         res.status(500).json({ error: '搜索服务暂时不可用，请稍后重试' });
     }
-}
+});
+
+// 托管静态文件（你的前端页面）
+app.use(express.static('public'));
+
+// 启动服务
+app.listen(port, () => {
+    console.log(`服务运行在端口 ${port}`);
+});
