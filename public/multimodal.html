@@ -263,7 +263,7 @@
             to { transform: rotate(360deg); }
         }
     </style>
-    <!-- 引入Tesseract.js 实现前端OCR -->
+    <!-- 引入Tesseract.js -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 </head>
 <body>
@@ -289,7 +289,7 @@
             <input type="file" id="imageInput" accept="image/*" style="display: none;">
         </div>
 
-        <!-- 快捷按钮组（OCR、描述图片等） -->
+        <!-- 快捷按钮组 -->
         <div class="quick-btn-group">
             <button class="quick-btn" id="ocrBtn" disabled>📝 一键OCR识别文字</button>
             <button class="quick-btn" id="describeBtn" disabled>📄 描述图片内容</button>
@@ -379,7 +379,41 @@
         reader.readAsDataURL(file);
     }
 
-    // 一键OCR识别文字
+    // 🔧 优化版：图片预处理（提高OCR准确率）
+    function preprocessImage(base64) {
+        return new Promise((resolve) => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.onload = () => {
+                // 放大图片（提升文字清晰度）
+                const scale = 2;
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                // 灰度处理 + 对比度增强
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                for (let i = 0; i < data.length; i += 4) {
+                    // 灰度
+                    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                    // 增强对比度
+                    const contrast = 1.5;
+                    const gray = ((avg / 255 - 0.5) * contrast + 0.5) * 255;
+                    const clamped = Math.max(0, Math.min(255, gray));
+                    data[i] = clamped;
+                    data[i + 1] = clamped;
+                    data[i + 2] = clamped;
+                }
+                ctx.putImageData(imageData, 0, 0);
+                resolve(canvas.toDataURL('image/png'));
+            };
+            img.src = base64;
+        });
+    }
+
+    // 一键OCR识别文字（优化版）
     ocrBtn.addEventListener('click', async () => {
         if (!selectedImageBase64) return;
         
@@ -388,22 +422,31 @@
         resultArea.classList.remove('active');
 
         try {
-            // 使用Tesseract.js进行OCR识别
+            // 先预处理图片
+            const processedImage = await preprocessImage(selectedImageBase64);
+
+            // 使用优化配置识别（优先英文，再中文）
             const result = await Tesseract.recognize(
-                selectedImageBase64,
-                'eng+chi_sim', // 同时识别英文和简体中文
+                processedImage,
+                'eng+chi_sim',
                 {
-                    logger: m => console.log(m)
+                    logger: m => console.log(m),
+                    // 关键配置：提升印刷体识别准确率
+                    psm: 6, // 假设为单个统一文本块
+                    oem: 3, // 默认OCR引擎
                 }
             );
 
-            const text = result.data.text.trim();
+            let text = result.data.text.trim();
+            // 清理识别结果中的乱码符号
+            text = text.replace(/[^\x20-\x7E\u4E00-\u9FA5]/g, '').replace(/\s+/g, '\n').trim();
+
             if (text) {
                 resultTitle.innerText = 'OCR识别结果';
                 resultContent.innerText = `识别到的文字：\n\n${text}`;
             } else {
                 resultTitle.innerText = 'OCR识别结果';
-                resultContent.innerText = '未识别到任何文字';
+                resultContent.innerText = '未识别到任何文字，可能是图片模糊或文字不清晰';
             }
             resultArea.classList.add('active');
         } catch (error) {
