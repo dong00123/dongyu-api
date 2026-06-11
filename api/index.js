@@ -14,7 +14,7 @@ app.get('/', (req, res) => {
     res.sendFile(publicPath + '/index.html');
 });
 
-// 处理 API 请求（适配 bwai.shop 中转接口）
+// 处理 API 请求（适配 bwai.shop 的 Claude 免费额度）
 app.post('/api', async (req, res) => {
     const { query } = req.body;
     if (!query || !query.trim()) {
@@ -22,7 +22,7 @@ app.post('/api', async (req, res) => {
     }
 
     try {
-        // 用 OpenAI 格式调用中转接口
+        // 用平台支持的 Claude 模型名（OpenAI 兼容格式）
         const response = await fetch('https://app.bwai.shop/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -30,8 +30,8 @@ app.post('/api', async (req, res) => {
                 'Authorization': 'Bearer ' + process.env.BWAI_API_KEY
             },
             body: JSON.stringify({
-                // 用中转平台兼容的模型名，优先试 gpt-3.5-turbo（很多免费中转都支持）
-                model: 'gpt-3.5-turbo',
+                // 换成平台免费额度支持的 Claude 模型
+                model: 'claude-3-haiku', 
                 messages: [
                     { 
                         role: 'system', 
