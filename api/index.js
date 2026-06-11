@@ -2,74 +2,50 @@ import express from 'express';
 const app = express();
 const port = process.env.PORT || 8080;
 
-// 托管静态文件
+// 托管前端静态文件
 const publicPath = process.cwd() + '/public';
 app.use(express.static(publicPath));
-
-// 解析 JSON 请求体
 app.use(express.json());
 
-// 根路径返回东玉搜索页面
 app.get('/', (req, res) => {
     res.sendFile(`${publicPath}/index.html`);
 });
 
-// 处理搜索请求，调用 OpenRouter
+// 适配中转API的搜索接口
 app.post('/api', async (req, res) => {
     const { query } = req.body;
-    if (!query || !query.trim()) {
-        return res.status(400).json({ error: '搜索内容不能为空' });
-    }
+    if (!query?.trim()) return res.status(400).json({ error: '搜索内容不能为空' });
 
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    console.log('OPENROUTER_API_KEY:', apiKey ? '已读取到' : '未读取到');
-
-    if (!apiKey) {
-        return res.status(500).json({ error: 'OPENROUTER_API_KEY 环境变量未配置' });
-    }
+    // 从环境变量读取你的中转密钥，避免硬编码泄露
+    const apiKey = process.env.BWAI_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: '中转API密钥未配置' });
 
     try {
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        const response = await fetch('https://app.bwai.shop/v1/chat/completions', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-                'HTTP-Referer': 'https://dongyu-api-production.up.railway.app',
-                'X-Title': 'Dongyu Search'
+                "Authorization": `Bearer ${apiKey}`,
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: 'openai/gpt-3.5-turbo',
+                model: "claude-3-opus", // 你密钥支持的Anthropic模型，也可以换成gpt-4o
                 messages: [
-                    {
-                        role: 'system',
-                        content: '你是一个智能搜索引擎助手，请根据用户的问题提供详细、准确的回答。回答要结构清晰，使用中文。'
-                    },
-                    {
-                        role: 'user',
-                        content: query.trim()
-                    }
-                ],
-                temperature: 0.7,
-                max_tokens: 2000
+                    { role: "system", content: "你是智能搜索助手，用中文给出清晰详细的回答" },
+                    { role: "user", content: query.trim() }
+                ]
             })
         });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            console.error('OpenRouter 错误:', response.status, errorData);
-            throw new Error(errorData.error?.message || `请求失败: ${response.status}`);
-        }
-
         const data = await response.json();
-        const answer = data.choices?.[0]?.message?.content || '未获取到回答';
-        res.status(200).json({ answer });
-    } catch (error) {
-        console.error('API 错误:', error);
-        res.status(500).json({ error: '搜索服务暂时不可用：' + error.message });
+        if (!response.ok) throw new Error(data.error?.message || '接口请求失败');
+        const answer = data.choices[0].message.content;
+        res.json({ answer });
+    } catch (err) {
+        console.error('请求出错：', err);
+        res.status(500).json({ error: `服务异常：${err.message}` });
     }
 });
 
-// 启动服务
 app.listen(port, '0.0.0.0', () => {
-    console.log(`服务运行在端口 ${port}`);
+    console.log(`服务启动在端口${port}`);
 });
