@@ -3,7 +3,7 @@ import express from 'express';
 const app = express();
 const port = process.env.PORT || 8080;
 
-const publicPath = process.cwd() + '/public';
+const publicPath = `${process.cwd()}/public`;
 app.use(express.static(publicPath));
 app.use(express.json());
 
@@ -19,12 +19,11 @@ app.post('/api', async (req, res) => {
     }
 
     const apiKey = process.env.BWAI_API_KEY;
+    const model = process.env.BWAI_MODEL || 'gpt-5.4-mini';
 
     if (!apiKey) {
         return res.status(500).json({ error: '中转API密钥未配置' });
     }
-
-    const model = process.env.BWAI_MODEL || 'gpt-5.4-mini';
 
     try {
         const response = await fetch('https://app.bwai.shop/v1/chat/completions', {
