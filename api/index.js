@@ -1,23 +1,32 @@
-import express from 'express';
+export default async function handler(req, res) {
+    // 跨域配置
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-const app = express();
-const port = process.env.PORT || 8080;
+    // 处理浏览器 OPTIONS 预检请求
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
 
-const publicPath = `${process.cwd()}/public`;
-app.use(express.static(publicPath));
-app.use(express.json());
+    // 1. 首页路由 / （Vercel 静态文件会自动接管 public，这里可忽略）
+    if (req.method === 'GET' && req.url === '/') {
+        return res.status(200).send('请访问首页页面');
+    }
 
-app.get('/', (req, res) => {
-    res.sendFile(`${publicPath}/index.html`);
-});
+    // 2. 只处理 POST /api 接口
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: "仅支持 POST 请求" });
+    }
 
-app.post('/api', async (req, res) => {
-    const { query } = req.body;
+    const { query } = req.body || {};
 
+    // 校验搜索内容
     if (!query?.trim()) {
         return res.status(400).json({ error: '搜索内容不能为空' });
     }
 
+    // 读取环境变量（和你原来 Express 一致）
     const apiKey = process.env.BWAI_API_KEY;
     const model = process.env.BWAI_MODEL || 'gpt-5.4-mini';
 
@@ -26,6 +35,7 @@ app.post('/api', async (req, res) => {
     }
 
     try {
+        // 请求 BWAI 接口（地址、请求体完全沿用你原来的逻辑）
         const response = await fetch('https://app.bwai.shop/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -49,6 +59,7 @@ app.post('/api', async (req, res) => {
 
         const text = await response.text();
 
+        // 日志（Vercel 后台 Logs 可以查看）
         console.log(`BWAI模型：${model}`);
         console.log('BWAI状态码：', response.status);
         console.log('BWAI返回：', text);
@@ -60,6 +71,7 @@ app.post('/api', async (req, res) => {
             data = { raw: text };
         }
 
+        // 上游接口报错
         if (!response.ok) {
             const errorMessage =
                 data.error?.message ||
@@ -72,23 +84,21 @@ app.post('/api', async (req, res) => {
             });
         }
 
+        // 提取回答
         const answer = data.choices?.[0]?.message?.content;
-
         if (!answer) {
             console.error('BWAI返回格式异常：', data);
             return res.status(502).json({ error: '上游返回格式异常' });
         }
 
+        // 返回给前端
         return res.json({
             answer,
             model
         });
+
     } catch (err) {
         console.error('请求出错：', err);
         res.status(500).json({ error: `服务异常：${err.message}` });
     }
-});
-
-app.listen(port, '0.0.0.0', () => {
-    console.log(`服务启动在端口${port}`);
-});
+}
