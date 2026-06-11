@@ -5,11 +5,10 @@ const port = process.env.PORT || 8080;
 // 中间件：解析 JSON 请求体
 app.use(express.json());
 
-// 1. 先托管静态文件（把 public 文件夹里的内容暴露出去）
-// 这样访问根路径 / 时，会自动返回 public/index.html
+// 托管静态文件（把 public 文件夹里的内容暴露出去）
 app.use(express.static('public'));
 
-// 2. 处理 API 请求
+// 处理 API 请求
 app.post('/api', async (req, res) => {
     const { query } = req.body;
     if (!query || !query.trim()) {
@@ -17,14 +16,15 @@ app.post('/api', async (req, res) => {
     }
 
     try {
-        const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+        // 替换为 bwai.shop 免费 API
+        const response = await fetch('https://app.bwai.shop/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + process.env.DEEPSEEK_API_KEY
+                'Authorization': 'Bearer ' + process.env.BWAI_API_KEY
             },
             body: JSON.stringify({
-                model: 'deepseek-chat',
+                model: 'claude-3-haiku-20240307', // 免费体验的 Anthropic 模型
                 messages: [
                     { role: 'system', content: '你是一个智能搜索引擎助手，请根据用户的问题提供详细、准确的回答。回答要结构清晰，使用中文。' },
                     { role: 'user', content: query.trim() }
