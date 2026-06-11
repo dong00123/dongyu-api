@@ -338,7 +338,7 @@
             transform: translateY(-2px);
         }
 
-        /* 特性卡片 —— 新增点击展开样式 */
+        /* 特性卡片 —— 修复点击展开样式 */
         .features {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -397,8 +397,8 @@
             font-size: 0.9rem;
             color: var(--text-secondary);
             line-height: 1.6;
-            /* 默认收起多余内容 */
             max-height: 60px;
+            overflow: hidden;
             transition: max-height 0.4s ease;
         }
         /* 点开后展开全文 */
@@ -556,8 +556,6 @@
             opacity: 1;
         }
     </style>
-<base target="_blank">
-<base target="_blank">
 </head>
 <body>
     <!-- 动态背景 -->
@@ -732,7 +730,7 @@
             loading.classList.remove('active');
             resultsArea.classList.add('active');
             searchBtn.disabled = false;
-            searchBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg> 搜索`;
+            searchBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2.5><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg> 搜索`;
         }
     }
 
@@ -771,12 +769,13 @@
         }
     }, 530);
 
-    // ========== 新增：卡片点击 点开/收起 逻辑 ==========
-    const cardList = document.querySelectorAll('.feature-card');
-    cardList.forEach(card => {
-        card.addEventListener('click', function () {
-            // 切换激活状态（点开/关闭）
-            this.classList.toggle('active');
+    // ========== 修复：等 DOM 加载完成再绑定卡片点击事件 ==========
+    document.addEventListener('DOMContentLoaded', function() {
+        const cardList = document.querySelectorAll('.feature-card');
+        cardList.forEach(card => {
+            card.addEventListener('click', function () {
+                this.classList.toggle('active');
+            });
         });
     });
 </script>
