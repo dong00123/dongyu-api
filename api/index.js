@@ -1,4 +1,5 @@
 import express from 'express';
+
 const app = express();
 const port = process.env.PORT || 8080;
 
@@ -14,31 +15,69 @@ app.get('/', (req, res) => {
 // 适配中转API的搜索接口
 app.post('/api', async (req, res) => {
     const { query } = req.body;
-    if (!query?.trim()) return res.status(400).json({ error: '搜索内容不能为空' });
 
-    // 从环境变量读取你的中转密钥，避免硬编码泄露
+    if (!query?.trim()) {
+        return res.status(400).json({ error: '搜索内容不能为空' });
+    }
+
     const apiKey = process.env.BWAI_API_KEY;
-    if (!apiKey) return res.status(500).json({ error: '中转API密钥未配置' });
+
+    if (!apiKey) {
+        return res.status(500).json({ error: '中转API密钥未配置' });
+    }
 
     try {
         const response = await fetch('https://app.bwai.shop/v1/chat/completions', {
             method: 'POST',
             headers: {
-                "Authorization": `Bearer ${apiKey}`,
-                "Content-Type": "application/json"
+                Authorization: `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: "claude-3-haiku-20240307",
+                // 如果这个模型不可用，把这里换成 BWAI 后台支持的模型
+                model: 'gpt-4o-mini',
                 messages: [
-                    { role: "system", content: "你是智能搜索助手，用中文给出清晰详细的回答" },
-                    { role: "user", content: query.trim() }
+                    {
+                        role: 'system',
+                        content: '你是智能搜索助手，用中文给出清晰详细的回答'
+                    },
+                    {
+                        role: 'user',
+                        content: query.trim()
+                    }
                 ]
             })
         });
 
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error?.message || '接口请求失败');
-        const answer = data.choices[0].message.content;
+        const text = await response.text();
+
+        console.log('BWAI状态码：', response.status);
+        console.log('BWAI返回：', text);
+
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch {
+            data = { raw: text };
+        }
+
+        if (!response.ok) {
+            return res.status(response.status).json({
+                error:
+                    data.error?.message ||
+                    data.message ||
+                    data.raw ||
+                    '接口请求失败'
+            });
+        }
+
+        const answer = data.choices?.[0]?.message?.content;
+
+        if (!answer) {
+            console.error('BWAI返回格式异常：', data);
+            return res.status(502).json({ error: '上游返回格式异常' });
+        }
+
         res.json({ answer });
     } catch (err) {
         console.error('请求出错：', err);
