@@ -2,23 +2,26 @@ import express from 'express';
 const app = express();
 const port = process.env.PORT || 8080;
 
-// 中间件：解析 JSON 请求体
 app.use(express.json());
-
-// 托管静态文件（你的东玉搜索前端页面）
 const publicPath = process.cwd() + '/public';
 app.use(express.static(publicPath));
 
-// 根路径返回东玉搜索页面
 app.get('/', (req, res) => {
     res.sendFile(publicPath + '/index.html');
 });
 
-// 处理搜索请求，调用 OpenRouter 上的 deepseek-r1 模型
 app.post('/api', async (req, res) => {
     const { query } = req.body;
     if (!query || !query.trim()) {
         return res.status(400).json({ error: '搜索内容不能为空' });
+    }
+
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    // 加个日志，确认环境变量是否读到了
+    console.log('OPENROUTER_API_KEY:', apiKey ? '已读取到' : '未读取到');
+
+    if (!apiKey) {
+        return res.status(500).json({ error: 'OPENROUTER_API_KEY 环境变量未配置' });
     }
 
     try {
@@ -26,19 +29,15 @@ app.post('/api', async (req, res) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-                // 这两个请求头可以避免被限流
+                // 这里改成直接拼接，确保格式正确
+                'Authorization': `Bearer ${apiKey}`,
                 'HTTP-Referer': 'https://dongyu-api-production.up.railway.app',
                 'X-Title': 'Dongyu Search'
             },
             body: JSON.stringify({
-                // 用 OpenRouter 免费支持的 deepseek-r1 模型
                 model: 'deepseek/deepseek-r1',
                 messages: [
-                    { 
-                        role: 'system', 
-                        content: '你是一个智能搜索引擎助手，请根据用户的问题提供详细、准确的回答。回答要结构清晰，使用中文。' 
-                    },
+                    { role: 'system', content: '你是一个智能搜索引擎助手，请根据用户的问题提供详细、准确的回答。回答要结构清晰，使用中文。' },
                     { role: 'user', content: query.trim() }
                 ],
                 temperature: 0.7,
@@ -48,7 +47,7 @@ app.post('/api', async (req, res) => {
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            console.error('API 错误:', response.status, errorData);
+            console.error('OpenRouter 错误:', response.status, errorData);
             throw new Error(errorData.error?.message || `请求失败: ${response.status}`);
         }
 
@@ -62,7 +61,6 @@ app.post('/api', async (req, res) => {
     }
 });
 
-// 启动服务，Railway 必须绑定 0.0.0.0
 app.listen(port, '0.0.0.0', () => {
     console.log(`服务运行在端口 ${port}`);
 });
