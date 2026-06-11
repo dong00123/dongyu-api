@@ -35,9 +35,13 @@ app.post('/api', async (req, res) => {
                 'X-Title': 'Dongyu Search'
             },
             body: JSON.stringify({
-                model: 'deepseek/deepseek-r1',
+                // 换成支持免费额度的模型
+                model: 'openai/gpt-3.5-turbo',
                 messages: [
-                    { role: 'system', content: '你是一个智能搜索引擎助手，请根据用户的问题提供详细、准确的回答。回答要结构清晰，使用中文。' },
+                    { 
+                        role: 'system', 
+                        content: '你是一个智能搜索引擎助手，请根据用户的问题提供详细、准确的回答。回答要结构清晰，使用中文。' 
+                    },
                     { role: 'user', content: query.trim() }
                 ],
                 temperature: 0.7,
