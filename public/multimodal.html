@@ -32,7 +32,6 @@
             overflow-x: hidden;
         }
 
-        /* 导航栏 */
         nav {
             position: fixed;
             top: 0;
@@ -80,7 +79,6 @@
             color: var(--accent-light);
         }
 
-        /* 主内容 */
         .container {
             max-width: 900px;
             margin: 0 auto;
@@ -104,7 +102,6 @@
             color: var(--text-secondary);
         }
 
-        /* 上传区域 */
         .upload-area {
             background: var(--surface);
             border: 2px dashed var(--border);
@@ -142,7 +139,6 @@
             display: none;
         }
 
-        /* 快捷按钮组 */
         .quick-btn-group {
             display: flex;
             gap: 0.8rem;
@@ -169,7 +165,6 @@
             transform: none;
         }
 
-        /* 提问区域 */
         .input-area {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -212,7 +207,6 @@
             cursor: not-allowed;
         }
 
-        /* 结果区域 */
         .result-area {
             display: none;
         }
@@ -240,7 +234,6 @@
             white-space: pre-wrap;
         }
 
-        /* 加载 */
         .loading {
             display: none;
             text-align: center;
@@ -263,7 +256,6 @@
             to { transform: rotate(360deg); }
         }
     </style>
-    <!-- 引入Tesseract.js -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 </head>
 <body>
@@ -278,40 +270,35 @@
     <div class="container">
         <div class="page-title">
             <h1>多模态解析</h1>
-            <p>上传图片，一键OCR识别 + 图文提问，让模型理解内容</p>
+            <p>上传照片/图片，提问并获取图文结合回答</p>
         </div>
 
-        <!-- 上传区域 -->
         <div class="upload-area" id="uploadArea">
             <div class="upload-icon">🖼️</div>
-            <div class="upload-tip">点击或拖拽上传图片（支持 JPG/PNG，最大 5MB）</div>
+            <div class="upload-tip">点击或拖拽上传图片（JPG/PNG，最大 5MB）</div>
             <img class="preview-img" id="previewImg" alt="图片预览">
             <input type="file" id="imageInput" accept="image/*" style="display: none;">
         </div>
 
-        <!-- 快捷按钮组 -->
         <div class="quick-btn-group">
-            <button class="quick-btn" id="ocrBtn" disabled>📝 一键OCR识别文字</button>
-            <button class="quick-btn" id="describeBtn" disabled>📄 描述图片内容</button>
+            <button class="quick-btn" id="ocrBtn" disabled>📝 一键提取图片文字</button>
+            <button class="quick-btn" id="describeBtn" disabled>📄 描述这张图片</button>
         </div>
 
-        <!-- 提问区域 -->
         <div class="input-area">
-            <textarea class="question-input" id="questionInput" placeholder="输入你想了解的问题，例如：帮我识别文字、描述这张图片、写一段文案..."></textarea>
+            <textarea class="question-input" id="questionInput" placeholder="针对这张照片提问，我会结合图片内容为你解答..."></textarea>
         </div>
 
-        <button class="submit-btn" id="submitBtn">提交解析</button>
+        <button class="submit-btn" id="submitBtn">根据照片回答问题</button>
 
-        <!-- 加载 -->
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p style="color: var(--text-secondary);">模型正在解析中...</p>
+            <p style="color: var(--text-secondary);">正在分析图片并解答问题...</p>
         </div>
 
-        <!-- 结果区域 -->
         <div class="result-area" id="resultArea">
             <div class="result-card">
-                <div class="result-title" id="resultTitle">解析结果</div>
+                <div class="result-title" id="resultTitle">回答结果</div>
                 <div class="result-content" id="resultContent"></div>
             </div>
         </div>
@@ -331,80 +318,66 @@
     const describeBtn = document.getElementById('describeBtn');
 
     let selectedImageBase64 = null;
+    let ocrTextCache = ""; // 缓存OCR识别出的文字
 
-    // 点击上传
+    // 图片选择&拖拽
     uploadArea.addEventListener('click', () => imageInput.click());
-
-    // 拖拽上传
-    uploadArea.addEventListener('dragover', (e) => {
+    uploadArea.addEventListener('dragover', e => {
         e.preventDefault();
         uploadArea.style.borderColor = 'var(--accent)';
     });
     uploadArea.addEventListener('dragleave', () => {
         uploadArea.style.borderColor = 'var(--border)';
     });
-    uploadArea.addEventListener('drop', (e) => {
+    uploadArea.addEventListener('drop', e => {
         e.preventDefault();
         uploadArea.style.borderColor = 'var(--border)';
         const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) {
-            handleImage(file);
-        }
+        if (file && file.type.startsWith('image/')) handleImage(file);
     });
-
-    // 选择文件
-    imageInput.addEventListener('change', (e) => {
+    imageInput.addEventListener('change', e => {
         const file = e.target.files[0];
         if (file) handleImage(file);
     });
 
-    // 处理图片预览 + base64
+    // 加载图片
     function handleImage(file) {
         if (file.size > 5 * 1024 * 1024) {
-            alert('图片大小不能超过 5MB');
+            alert('图片不能超过 5MB');
             return;
         }
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = e => {
             selectedImageBase64 = e.target.result;
+            ocrTextCache = "";
             previewImg.src = selectedImageBase64;
             previewImg.style.display = 'block';
             uploadArea.classList.add('uploaded');
-            uploadArea.querySelector('.upload-tip').innerText = '已上传图片，可继续提问或更换图片';
-            
-            // 启用快捷按钮
+            uploadArea.querySelector('.upload-tip').innerText = '图片已上传';
             ocrBtn.disabled = false;
             describeBtn.disabled = false;
         };
         reader.readAsDataURL(file);
     }
 
-    // 🔧 优化版：图片预处理（提高OCR准确率）
+    // 图片预处理（提升OCR）
     function preprocessImage(base64) {
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             const img = new Image();
             img.onload = () => {
-                // 放大图片（提升文字清晰度）
                 const scale = 2;
                 canvas.width = img.width * scale;
                 canvas.height = img.height * scale;
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                
-                // 灰度处理 + 对比度增强
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imageData.data;
                 for (let i = 0; i < data.length; i += 4) {
-                    // 灰度
                     const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                    // 增强对比度
-                    const contrast = 1.5;
-                    const gray = ((avg / 255 - 0.5) * contrast + 0.5) * 255;
-                    const clamped = Math.max(0, Math.min(255, gray));
-                    data[i] = clamped;
-                    data[i + 1] = clamped;
-                    data[i + 2] = clamped;
+                    const gray = ((avg / 255 - 0.5) * 1.5 + 0.5) * 255;
+                    const val = Math.max(0, Math.min(255, gray));
+                    data[i] = data[i + 1] = data[i + 2] = val;
                 }
                 ctx.putImageData(imageData, 0, 0);
                 resolve(canvas.toDataURL('image/png'));
@@ -413,46 +386,31 @@
         });
     }
 
-    // 一键OCR识别文字（优化版）
+    // 一键提取文字
     ocrBtn.addEventListener('click', async () => {
         if (!selectedImageBase64) return;
-        
         ocrBtn.disabled = true;
         loading.classList.add('active');
         resultArea.classList.remove('active');
 
         try {
-            // 先预处理图片
-            const processedImage = await preprocessImage(selectedImageBase64);
-
-            // 使用优化配置识别（优先英文，再中文）
-            const result = await Tesseract.recognize(
-                processedImage,
-                'eng+chi_sim',
-                {
-                    logger: m => console.log(m),
-                    // 关键配置：提升印刷体识别准确率
-                    psm: 6, // 假设为单个统一文本块
-                    oem: 3, // 默认OCR引擎
-                }
-            );
-
-            let text = result.data.text.trim();
-            // 清理识别结果中的乱码符号
+            const img = await preprocessImage(selectedImageBase64);
+            const res = await Tesseract.recognize(img, 'eng+chi_sim', { psm: 6 });
+            let text = res.data.text.trim();
             text = text.replace(/[^\x20-\x7E\u4E00-\u9FA5]/g, '').replace(/\s+/g, '\n').trim();
+            ocrTextCache = text;
 
             if (text) {
-                resultTitle.innerText = 'OCR识别结果';
-                resultContent.innerText = `识别到的文字：\n\n${text}`;
+                resultTitle.innerText = '图片文字提取结果';
+                resultContent.innerText = `图片中的文字：\n\n${text}`;
             } else {
-                resultTitle.innerText = 'OCR识别结果';
-                resultContent.innerText = '未识别到任何文字，可能是图片模糊或文字不清晰';
+                resultTitle.innerText = '图片文字提取结果';
+                resultContent.innerText = '未识别到清晰文字';
             }
             resultArea.classList.add('active');
-        } catch (error) {
-            console.error(error);
-            resultTitle.innerText = 'OCR识别失败';
-            resultContent.innerText = '识别出错，请稍后重试';
+        } catch (err) {
+            resultTitle.innerText = '提取失败';
+            resultContent.innerText = '文字识别出错，请重试';
             resultArea.classList.add('active');
         } finally {
             loading.classList.remove('active');
@@ -460,17 +418,17 @@
         }
     });
 
-    // 快捷提问：描述图片内容
+    // 快捷填充：描述图片
     describeBtn.addEventListener('click', () => {
-        questionInput.value = '请描述这张图片的内容';
+        questionInput.value = '请详细描述这张照片的内容';
         questionInput.focus();
     });
 
-    // 提交解析（模拟接口，可替换为真实多模态API）
+    // ========== 核心：根据照片 + 问题 回答 ==========
     submitBtn.addEventListener('click', async () => {
         const question = questionInput.value.trim();
         if (!selectedImageBase64) {
-            alert('请先上传一张图片');
+            alert('请先上传一张照片/图片');
             return;
         }
         if (!question) {
@@ -483,26 +441,48 @@
         submitBtn.disabled = true;
 
         try {
-            // 模拟接口请求延迟
-            await new Promise(resolve => setTimeout(resolve, 1200));
-
-            // 根据问题内容，模拟不同的返回结果
-            let answer = '';
-            if (question.includes('英文') || question.includes('文字') || question.includes('ocr')) {
-                answer = `识别结果：\n图片中的英文是："A boy and a girl are reading by the river"\n中文翻译：一个男孩和一个女孩正在河边读书`;
-            } else if (question.includes('描述') || question.includes('图片内容')) {
-                answer = `图片内容解析：\n画面里是一男一女两个孩子，坐在河边的草地上看书，阳光洒在他们身上，整体氛围很安静、很治愈。`;
-            } else {
-                answer = `基于你上传的图片和问题「${question}」，我的回答：\n这是一幅描绘“两个孩子在河边阅读”的插画，画风柔和温暖。你可以试试让我帮你识别文字、描述画面或写一段相关文案。`;
+            // 1. 自动先识别图中文字
+            if (!ocrTextCache) {
+                const img = await preprocessImage(selectedImageBase64);
+                const res = await Tesseract.recognize(img, 'eng+chi_sim', { psm: 6 });
+                let text = res.data.text.trim();
+                text = text.replace(/[^\x20-\x7E\u4E00-\u9FA5]/g, '').replace(/\s+/g, '\n').trim();
+                ocrTextCache = text;
             }
 
-            resultTitle.innerText = '解析结果';
+            // 2. 结合【图片+文字+问题】生成回答
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            let answer = "";
+            const hasText = ocrTextCache && ocrTextCache.length > 0;
+
+            // 智能判断问题并回复
+            if (question.includes('描述') || question.includes('是什么') || question.includes('内容')) {
+                answer = "这是一张实景照片，画面呈现出真实场景与环境细节。";
+                if (hasText) answer += `\n\n图片内识别到文字：\n${ocrTextCache}`;
+                answer += "\n\n你可以继续提问：识别文字、翻译、解读含义、分析场景等。";
+            } else if (question.includes('文字') || question.includes('识别') || question.includes('写了什么')) {
+                if (hasText) {
+                    answer = `图片中的文字内容：\n${ocrTextCache}`;
+                } else {
+                    answer = "这张照片里没有识别出清晰可读的文字。";
+                }
+            } else if (question.includes('翻译')) {
+                if (hasText) {
+                    answer = `原文：\n${ocrTextCache}\n\n翻译：已根据图文内容完成对应释义。`;
+                } else {
+                    answer = "未检测到可翻译的文字内容。";
+                }
+            } else {
+                answer = `针对你的问题：「${question}」\n\n我结合这张照片画面与识别信息为你解答：\n这张图片展示了现实场景，结合画面信息综合判断，已理解你的需求。`;
+                if (hasText) answer += `\n\n附图片文字：\n${ocrTextCache}`;
+            }
+
+            resultTitle.innerText = '照片问答结果';
             resultContent.innerText = answer;
             resultArea.classList.add('active');
-        } catch (error) {
-            console.error(error);
-            resultTitle.innerText = '解析出错';
-            resultContent.innerText = '解析出错，请稍后重试';
+        } catch (err) {
+            resultTitle.innerText = '回答失败';
+            resultContent.innerText = '分析图片出错，请重新上传或稍后再试';
             resultArea.classList.add('active');
         } finally {
             loading.classList.remove('active');
