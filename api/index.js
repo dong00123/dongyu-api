@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 const app = express();
 const port = process.env.PORT || 8080;
 
@@ -11,7 +11,7 @@ app.use(express.json());
 
 // 根路径返回东玉搜索页面
 app.get('/', (req, res) => {
-    res.sendFile(publicPath + '/index.html');
+    res.sendFile(`${publicPath}/index.html`);
 });
 
 // 处理搜索请求，调用 OpenRouter
