@@ -14,7 +14,7 @@ app.get('/', (req, res) => {
     res.sendFile(publicPath + '/index.html');
 });
 
-// 处理 API 请求（适配 bwai.shop 的 Claude 免费额度）
+// 核心：用 Claude 原生格式调用 bwai.shop 的 Anthropic 接口
 app.post('/api', async (req, res) => {
     const { query } = req.body;
     if (!query || !query.trim()) {
@@ -22,25 +22,26 @@ app.post('/api', async (req, res) => {
     }
 
     try {
-        // 用平台支持的 Claude 模型名（OpenAI 兼容格式）
-        const response = await fetch('https://app.bwai.shop/v1/chat/completions', {
+        // 1. 构建 Claude 原生请求体
+        const systemPrompt = '你是一个智能搜索引擎助手，请根据用户的问题提供详细、准确的回答。回答要结构清晰，使用中文。';
+        const userMessage = query.trim();
+
+        // 2. 调用 bwai.shop 的 Claude 原生接口（必须用 /v1/messages）
+        const response = await fetch('https://app.bwai.shop/v1/messages', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + process.env.BWAI_API_KEY
+                'Authorization': 'Bearer ' + process.env.BWAI_API_KEY,
+                'anthropic-version': '2023-06-01' // Claude API 必须带这个 Header
             },
             body: JSON.stringify({
-                // 换成平台免费额度支持的 Claude 模型
-                model: 'claude-3-haiku', 
+                // 用平台免费体验分组支持的 Claude 模型
+                model: 'claude-3-haiku-20240307',
+                max_tokens: 2000,
+                system: systemPrompt,
                 messages: [
-                    { 
-                        role: 'system', 
-                        content: '你是一个智能搜索引擎助手，请根据用户的问题提供详细、准确的回答。回答要结构清晰，使用中文。' 
-                    },
-                    { role: 'user', content: query.trim() }
-                ],
-                temperature: 0.7,
-                max_tokens: 2000
+                    { role: 'user', content: userMessage }
+                ]
             })
         });
 
@@ -51,7 +52,8 @@ app.post('/api', async (req, res) => {
         }
 
         const data = await response.json();
-        const answer = data.choices?.[0]?.message?.content || '未获取到回答';
+        // 3. 把 Claude 响应转换成前端能识别的格式
+        const answer = data.content?.[0]?.text || '未获取到回答';
 
         res.status(200).json({ answer });
     } catch (error) {
