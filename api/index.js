@@ -5,7 +5,7 @@ const port = process.env.PORT || 8080;
 // 中间件：解析 JSON 请求体
 app.use(express.json());
 
-// 托管静态文件（把 public 文件夹里的内容暴露出去）
+// 托管静态文件
 const publicPath = process.cwd() + '/public';
 app.use(express.static(publicPath));
 
@@ -14,7 +14,7 @@ app.get('/', (req, res) => {
     res.sendFile(publicPath + '/index.html');
 });
 
-// 处理 API 请求（适配 bwai.shop 的 Gemini 分组）
+// 处理 API 请求（适配 codex-pro 分组）
 app.post('/api', async (req, res) => {
     const { query } = req.body;
     if (!query || !query.trim()) {
@@ -22,7 +22,7 @@ app.post('/api', async (req, res) => {
     }
 
     try {
-        // 调用 Gemini 分组的接口（用 OpenAI 兼容格式）
+        // 用 OpenAI 格式调用 codex-pro 分组
         const response = await fetch('https://app.bwai.shop/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -30,8 +30,8 @@ app.post('/api', async (req, res) => {
                 'Authorization': 'Bearer ' + process.env.BWAI_API_KEY
             },
             body: JSON.stringify({
-                // 用 Gemini 分组支持的模型名，优先试 gemini-1.5-flash
-                model: 'gemini-1.5-flash',
+                // 用 codex-pro 分组支持的模型，优先试 gpt-3.5-turbo-16k 或 gpt-4
+                model: 'gpt-3.5-turbo',
                 messages: [
                     { 
                         role: 'system', 
