@@ -28,7 +28,7 @@ app.post('/api', async (req, res) => {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "gpt-3.5-turbo", // 改成这个
+                model: "claude-3-haiku-20240307",
                 messages: [
                     { role: "system", content: "你是智能搜索助手，用中文给出清晰详细的回答" },
                     { role: "user", content: query.trim() }
