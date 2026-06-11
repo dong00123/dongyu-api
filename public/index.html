@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>东玉 - 智能搜索</title>
+    <meta name="description" content="东玉大模型智能搜索，语义理解、实时问答、多模态解析">
+    <meta name="keywords" content="东玉,大模型,智能搜索,AI问答">
+    <!-- 防XSS、防篡改 -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="same-origin">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -278,7 +284,7 @@
             50% { opacity: 0.5; transform: scale(1.2); }
         }
 
-        /* 搜索框容器（新增多按钮布局） */
+        /* 搜索框容器 */
         .search-container {
             width: 100%;
             max-width: 800px;
@@ -342,6 +348,10 @@
             background: rgba(233, 69, 96, 0.15);
             color: var(--accent-light);
         }
+        .icon-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
 
         .search-btn {
             padding: 0.8rem 1.2rem;
@@ -370,6 +380,8 @@
         .search-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
         }
 
         /* 搜索联想下拉 */
@@ -442,6 +454,7 @@
             font-size: 0.9rem;
             color: var(--text-secondary);
             cursor: pointer;
+            transition: 0.2s;
         }
         .history-tag:hover {
             background: rgba(233, 69, 96, 0.15);
@@ -569,7 +582,7 @@
         .result-desc {
             color: var(--text-secondary);
             font-size: 0.95rem;
-            line-height: 1.6;
+            line-height: 1.8;
             white-space: pre-wrap;
         }
 
@@ -612,6 +625,7 @@
             padding: 1rem 1.5rem;
             color: var(--accent-light);
             margin-bottom: 1rem;
+            line-height: 1.6;
         }
 
         /* 回到顶部 */
@@ -630,11 +644,15 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             display: none;
             z-index: 99;
+            transition: transform 0.2s;
         }
         .back-top.show {
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+        .back-top:active {
+            transform: scale(0.9);
         }
 
         /* 弹窗样式 */
@@ -721,6 +739,35 @@
             to { opacity: 1; }
         }
 
+        /* 输入时的光效 */
+        .glow-effect {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 0 60px rgba(233, 69, 96, 0.3);
+        }
+
+        .search-box:focus ~ .glow-effect {
+            opacity: 1;
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--surface);
+        }
+
         /* 响应式 */
         @media (max-width: 768px) {
             .hero-title {
@@ -745,22 +792,6 @@
                 bottom: 16px;
                 right: 16px;
             }
-        }
-
-        /* 输入时的光效 */
-        .glow-effect {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 16px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s;
-            box-shadow: 0 0 60px rgba(233, 69, 96, 0.3);
-        }
-
-        .search-box:focus ~ .glow-effect {
-            opacity: 1;
         }
     </style>
 </head>
@@ -817,6 +848,7 @@
                     id="searchInput"
                     placeholder="输入你想了解的内容..."
                     autocomplete="off"
+                    maxlength="500"
                 >
                 <div class="glow-effect"></div>
 
@@ -897,7 +929,13 @@
     </footer>
 
 <script>
+    // 接口基础地址（适配 Vercel / 同域名接口）
     const API_BASE_URL = '';
+    // 请求超时时间 15 秒
+    const FETCH_TIMEOUT = 15000;
+    // 防抖延迟
+    const DEBOUNCE_DELAY = 300;
+
     const searchInput = document.getElementById('searchInput');
     const searchBtn = document.getElementById('searchBtn');
     const loading = document.getElementById('loading');
@@ -919,6 +957,53 @@
         "Python 入门", "Python 爬虫", "人工智能 入门", "前端 Vue", "前端 React",
         "数据分析 Excel", "机器学习 算法", "大模型 部署", "前端 面试题"
     ];
+
+    // ========== 工具函数 ==========
+    /**
+     * HTML 转义，防御 XSS
+     * @param {string} text 
+     * @returns {string}
+     */
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    /**
+     * 带超时的 fetch 请求
+     * @param {string} url 
+     * @param {RequestInit} options 
+     * @returns {Promise<Response>}
+     */
+    async function fetchWithTimeout(url, options = {}) {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+        try {
+            const res = await fetch(url, {
+                ...options,
+                signal: controller.signal
+            });
+            return res;
+        } finally {
+            clearTimeout(id);
+        }
+    }
+
+    /**
+     * 防抖函数
+     * @param {Function} fn 
+     * @param {number} delay 
+     * @returns {Function}
+     */
+    function debounce(fn, delay) {
+        let timer = null;
+        return function(...args) {
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
 
     // ========== 弹窗相关函数 ==========
     function openModal(type) {
@@ -976,6 +1061,7 @@
     function setSearch(text) {
         searchInput.value = text;
         searchInput.focus();
+        suggestList.classList.remove('show');
     }
 
     // ========== 清空输入框 ==========
@@ -987,8 +1073,9 @@
 
     // ========== 语音搜索 (浏览器原生语音识别) ==========
     voiceBtn.addEventListener('click', () => {
+        if (voiceBtn.disabled) return;
         if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
-            alert("当前浏览器不支持语音识别，请使用 Chrome / Edge");
+            alert("当前浏览器不支持语音识别，请使用 Chrome / Edge 最新版本");
             return;
         }
         const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -996,20 +1083,28 @@
         rec.lang = "zh-CN";
         rec.start();
         voiceBtn.style.color = "var(--accent)";
+        voiceBtn.disabled = true;
 
         rec.onresult = (e) => {
             const text = e.results[0][0].transcript;
             searchInput.value = text;
             voiceBtn.style.color = "";
+            voiceBtn.disabled = false;
             rec.stop();
         };
         rec.onerror = () => {
             voiceBtn.style.color = "";
+            voiceBtn.disabled = false;
+            rec.stop();
+        };
+        rec.onend = () => {
+            voiceBtn.style.color = "";
+            voiceBtn.disabled = false;
         };
     });
 
-    // ========== 搜索联想 ==========
-    searchInput.addEventListener('input', () => {
+    // ========== 搜索联想（增加防抖） ==========
+    const handleInput = debounce(() => {
         const val = searchInput.value.trim();
         suggestList.innerHTML = '';
         if (!val) {
@@ -1033,7 +1128,9 @@
         } else {
             suggestList.classList.remove('show');
         }
-    });
+    }, DEBOUNCE_DELAY);
+
+    searchInput.addEventListener('input', handleInput);
 
     // 点击页面其他区域关闭联想
     document.addEventListener('click', (e) => {
@@ -1083,16 +1180,21 @@
         renderHistory();
     });
 
-    // ========== 核心搜索逻辑 ==========
+    // ========== 核心搜索逻辑（防重点击 + 超时 + 异常完善） ==========
+    let isSearching = false;
     async function performSearch() {
+        if (isSearching) return;
+
         const query = searchInput.value.trim();
         if (!query) {
             searchInput.focus();
             return;
         }
-        addHistory(query); // 存入历史
+
+        addHistory(query);
         suggestList.classList.remove('show');
 
+        isSearching = true;
         loading.classList.add('active');
         resultsArea.classList.remove('active');
         resultsArea.innerHTML = '';
@@ -1100,31 +1202,39 @@
         searchBtn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;margin:0;"></div> 搜索中';
 
         try {
-            const response = await fetch(API_BASE_URL + '/api', {
+            const response = await fetchWithTimeout(API_BASE_URL + '/api', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ query: query })
             });
 
             const data = await response.json();
-            if (!response.ok) throw new Error(data.error || '请求失败');
-            const answer = data.answer || '未获取到回答';
+            if (!response.ok) throw new Error(data.error || '服务返回异常');
+            const answer = data.answer || '未获取到有效回答';
+            const modelName = data.model || '';
 
             resultsArea.innerHTML = `
                 <div class="result-item">
                     <div class="result-title">🔍 ${escapeHtml(query)}</div>
-                    <div class="result-meta">由 DeepSeek 大模型提供答案</div>
+                    <div class="result-meta">${modelName ? `由 ${escapeHtml(modelName)} 大模型提供答案` : '由大模型提供答案'}</div>
                     <div class="result-desc">${escapeHtml(answer)}</div>
                 </div>
             `;
         } catch (error) {
             console.error('搜索错误:', error);
+            let errMsg = '请求失败，请稍后重试';
+            if (error.name === 'AbortError') {
+                errMsg = '请求超时，请检查网络或稍后再试';
+            } else if (error.message) {
+                errMsg = error.message;
+            }
             resultsArea.innerHTML = `
                 <div class="error-msg">
-                    ❌ 搜索出错：${escapeHtml(error.message)}
+                    ❌ ${escapeHtml(errMsg)}
                 </div>
             `;
         } finally {
+            isSearching = false;
             loading.classList.remove('active');
             resultsArea.classList.add('active');
             searchBtn.disabled = false;
@@ -1132,16 +1242,9 @@
         }
     }
 
-    // HTML 转义，防止 XSS
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
     searchBtn.addEventListener('click', performSearch);
     searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') performSearch();
+        if (e.key === 'Enter' && !isSearching) performSearch();
     });
 
     // ========== 主题切换 明暗模式 ==========
@@ -1149,10 +1252,20 @@
         const isLight = document.documentElement.getAttribute('data-theme') === 'light';
         if (isLight) {
             document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('dongyu_theme', 'dark');
         } else {
             document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('dongyu_theme', 'light');
         }
     });
+
+    // 页面加载时读取本地主题偏好
+    (function initTheme() {
+        const savedTheme = localStorage.getItem('dongyu_theme');
+        if (savedTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+    })();
 
     // ========== 回到顶部 ==========
     window.addEventListener('scroll', () => {
@@ -1166,21 +1279,23 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // ========== 原有焦点动画 ==========
+    // ========== 输入框焦点动画 ==========
     searchInput.addEventListener('focus', () => {
-        document.querySelector('.hero-section').style.opacity = '0.7';
-        document.querySelector('.hero-section').style.transform = 'scale(0.95)';
-        document.querySelector('.hero-section').style.transition = 'all 0.5s';
+        const hero = document.querySelector('.hero-section');
+        hero.style.opacity = '0.7';
+        hero.style.transform = 'scale(0.95)';
+        hero.style.transition = 'all 0.5s';
     });
 
     searchInput.addEventListener('blur', () => {
         if (!searchInput.value) {
-            document.querySelector('.hero-section').style.opacity = '1';
-            document.querySelector('.hero-section').style.transform = 'scale(1)';
+            const hero = document.querySelector('.hero-section');
+            hero.style.opacity = '1';
+            hero.style.transform = 'scale(1)';
         }
     });
 
-    // 光标闪烁效果
+    // 光标闪烁美化
     let cursorVisible = true;
     setInterval(() => {
         cursorVisible = !cursorVisible;
