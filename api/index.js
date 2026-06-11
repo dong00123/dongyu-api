@@ -5,16 +5,16 @@ const port = process.env.PORT || 8080;
 // 中间件：解析 JSON 请求体
 app.use(express.json());
 
-// 托管静态文件
+// 托管静态文件（你的东玉搜索前端页面）
 const publicPath = process.cwd() + '/public';
 app.use(express.static(publicPath));
 
-// 根路径强制返回 index.html
+// 根路径返回东玉搜索页面
 app.get('/', (req, res) => {
     res.sendFile(publicPath + '/index.html');
 });
 
-// 处理 API 请求（适配 codex-pro 分组）
+// 处理搜索请求，调用 OpenRouter 上的 deepseek-r1 模型
 app.post('/api', async (req, res) => {
     const { query } = req.body;
     if (!query || !query.trim()) {
@@ -22,16 +22,18 @@ app.post('/api', async (req, res) => {
     }
 
     try {
-        // 用 OpenAI 格式调用 codex-pro 分组
-        const response = await fetch('https://app.bwai.shop/v1/chat/completions', {
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + process.env.BWAI_API_KEY
+                'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                // 这两个请求头可以避免被限流
+                'HTTP-Referer': 'https://dongyu-api-production.up.railway.app',
+                'X-Title': 'Dongyu Search'
             },
             body: JSON.stringify({
-                // 用 codex-pro 分组支持的模型，优先试 gpt-3.5-turbo-16k 或 gpt-4
-                model: 'gpt-3.5-turbo',
+                // 用 OpenRouter 免费支持的 deepseek-r1 模型
+                model: 'deepseek/deepseek-r1',
                 messages: [
                     { 
                         role: 'system', 
@@ -46,7 +48,7 @@ app.post('/api', async (req, res) => {
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            console.error('API 错误详情:', response.status, errorData);
+            console.error('API 错误:', response.status, errorData);
             throw new Error(errorData.error?.message || `请求失败: ${response.status}`);
         }
 
@@ -60,8 +62,7 @@ app.post('/api', async (req, res) => {
     }
 });
 
-// 启动服务（Railway 必须绑定 0.0.0.0）
+// 启动服务，Railway 必须绑定 0.0.0.0
 app.listen(port, '0.0.0.0', () => {
     console.log(`服务运行在端口 ${port}`);
-    console.log(`静态文件路径: ${publicPath}`);
 });
