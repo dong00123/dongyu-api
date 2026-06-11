@@ -142,13 +142,40 @@
             display: none;
         }
 
+        /* 快捷按钮组 */
+        .quick-btn-group {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .quick-btn {
+            padding: 0.6rem 1.2rem;
+            background: rgba(233, 69, 96, 0.1);
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            border-radius: 20px;
+            color: var(--accent-light);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .quick-btn:hover {
+            background: rgba(233, 69, 96, 0.2);
+            transform: translateY(-2px);
+        }
+        .quick-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* 提问区域 */
         .input-area {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 1rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .question-input {
@@ -174,6 +201,7 @@
             cursor: pointer;
             transition: all 0.3s;
             font-weight: 500;
+            margin-bottom: 1.5rem;
         }
         .submit-btn:hover {
             transform: translateY(-2px);
@@ -186,7 +214,6 @@
 
         /* 结果区域 */
         .result-area {
-            margin-top: 2rem;
             display: none;
         }
         .result-area.active {
@@ -198,6 +225,7 @@
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .result-title {
@@ -235,6 +263,8 @@
             to { transform: rotate(360deg); }
         }
     </style>
+    <!-- 引入Tesseract.js 实现前端OCR -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 </head>
 <body>
     <nav>
@@ -248,7 +278,7 @@
     <div class="container">
         <div class="page-title">
             <h1>多模态解析</h1>
-            <p>上传图片，搭配文字提问，让模型理解图文内容</p>
+            <p>上传图片，一键OCR识别 + 图文提问，让模型理解内容</p>
         </div>
 
         <!-- 上传区域 -->
@@ -259,9 +289,15 @@
             <input type="file" id="imageInput" accept="image/*" style="display: none;">
         </div>
 
+        <!-- 快捷按钮组（OCR、描述图片等） -->
+        <div class="quick-btn-group">
+            <button class="quick-btn" id="ocrBtn" disabled>📝 一键OCR识别文字</button>
+            <button class="quick-btn" id="describeBtn" disabled>📄 描述图片内容</button>
+        </div>
+
         <!-- 提问区域 -->
         <div class="input-area">
-            <textarea class="question-input" id="questionInput" placeholder="输入你想了解的问题，例如：描述这张图片的内容、帮我识别这张试卷的题目..."></textarea>
+            <textarea class="question-input" id="questionInput" placeholder="输入你想了解的问题，例如：帮我识别文字、描述这张图片、写一段文案..."></textarea>
         </div>
 
         <button class="submit-btn" id="submitBtn">提交解析</button>
@@ -275,7 +311,7 @@
         <!-- 结果区域 -->
         <div class="result-area" id="resultArea">
             <div class="result-card">
-                <div class="result-title">解析结果</div>
+                <div class="result-title" id="resultTitle">解析结果</div>
                 <div class="result-content" id="resultContent"></div>
             </div>
         </div>
@@ -289,7 +325,10 @@
     const submitBtn = document.getElementById('submitBtn');
     const loading = document.getElementById('loading');
     const resultArea = document.getElementById('resultArea');
+    const resultTitle = document.getElementById('resultTitle');
     const resultContent = document.getElementById('resultContent');
+    const ocrBtn = document.getElementById('ocrBtn');
+    const describeBtn = document.getElementById('describeBtn');
 
     let selectedImageBase64 = null;
 
@@ -332,11 +371,59 @@
             previewImg.style.display = 'block';
             uploadArea.classList.add('uploaded');
             uploadArea.querySelector('.upload-tip').innerText = '已上传图片，可继续提问或更换图片';
+            
+            // 启用快捷按钮
+            ocrBtn.disabled = false;
+            describeBtn.disabled = false;
         };
         reader.readAsDataURL(file);
     }
 
-    // 提交解析（这里你可以替换成你的多模态接口）
+    // 一键OCR识别文字
+    ocrBtn.addEventListener('click', async () => {
+        if (!selectedImageBase64) return;
+        
+        ocrBtn.disabled = true;
+        loading.classList.add('active');
+        resultArea.classList.remove('active');
+
+        try {
+            // 使用Tesseract.js进行OCR识别
+            const result = await Tesseract.recognize(
+                selectedImageBase64,
+                'eng+chi_sim', // 同时识别英文和简体中文
+                {
+                    logger: m => console.log(m)
+                }
+            );
+
+            const text = result.data.text.trim();
+            if (text) {
+                resultTitle.innerText = 'OCR识别结果';
+                resultContent.innerText = `识别到的文字：\n\n${text}`;
+            } else {
+                resultTitle.innerText = 'OCR识别结果';
+                resultContent.innerText = '未识别到任何文字';
+            }
+            resultArea.classList.add('active');
+        } catch (error) {
+            console.error(error);
+            resultTitle.innerText = 'OCR识别失败';
+            resultContent.innerText = '识别出错，请稍后重试';
+            resultArea.classList.add('active');
+        } finally {
+            loading.classList.remove('active');
+            ocrBtn.disabled = false;
+        }
+    });
+
+    // 快捷提问：描述图片内容
+    describeBtn.addEventListener('click', () => {
+        questionInput.value = '请描述这张图片的内容';
+        questionInput.focus();
+    });
+
+    // 提交解析（模拟接口，可替换为真实多模态API）
     submitBtn.addEventListener('click', async () => {
         const question = questionInput.value.trim();
         if (!selectedImageBase64) {
@@ -348,32 +435,30 @@
             return;
         }
 
-        // 显示加载
         loading.classList.add('active');
         resultArea.classList.remove('active');
         submitBtn.disabled = true;
 
         try {
-            // 这里是示例，你可以替换成你的多模态 API 调用
-            // const response = await fetch('/api/multimodal', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({
-            //         image: selectedImageBase64,
-            //         question: question
-            //     })
-            // });
-            // const data = await response.json();
-            // const answer = data.answer || '解析失败';
+            // 模拟接口请求延迟
+            await new Promise(resolve => setTimeout(resolve, 1200));
 
-            // 模拟接口返回
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            const answer = `基于你上传的图片和问题「${question}」，模型的解析结果：\n\n（这里是你的多模态模型返回的文本内容，你对接接口后会自动替换）`;
+            // 根据问题内容，模拟不同的返回结果
+            let answer = '';
+            if (question.includes('英文') || question.includes('文字') || question.includes('ocr')) {
+                answer = `识别结果：\n图片中的英文是："A boy and a girl are reading by the river"\n中文翻译：一个男孩和一个女孩正在河边读书`;
+            } else if (question.includes('描述') || question.includes('图片内容')) {
+                answer = `图片内容解析：\n画面里是一男一女两个孩子，坐在河边的草地上看书，阳光洒在他们身上，整体氛围很安静、很治愈。`;
+            } else {
+                answer = `基于你上传的图片和问题「${question}」，我的回答：\n这是一幅描绘“两个孩子在河边阅读”的插画，画风柔和温暖。你可以试试让我帮你识别文字、描述画面或写一段相关文案。`;
+            }
 
+            resultTitle.innerText = '解析结果';
             resultContent.innerText = answer;
             resultArea.classList.add('active');
         } catch (error) {
             console.error(error);
+            resultTitle.innerText = '解析出错';
             resultContent.innerText = '解析出错，请稍后重试';
             resultArea.classList.add('active');
         } finally {
