@@ -8,7 +8,7 @@ const publicPath = `${process.cwd()}/public`;
 // 中间件
 app.use(cors());
 app.use(express.static(publicPath));
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 // 首页路由
 app.get('/', (req, res) => {
@@ -17,7 +17,7 @@ app.get('/', (req, res) => {
 
 // API 接口
 app.post('/api', async (req, res) => {
-    const { query } = req.body;
+    const { query, imageBase64 } = req.body;
     if (!query?.trim()) {
         return res.status(400).json({ error: '搜索内容不能为空' });
     }
@@ -29,6 +29,13 @@ app.post('/api', async (req, res) => {
     }
 
     try {
+        const userContent = imageBase64
+            ? [
+                { type: 'text', text: query.trim() },
+                { type: 'image_url', image_url: { url: imageBase64 } }
+            ]
+            : query.trim();
+
         const response = await fetch('https://app.bwai.shop/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -40,11 +47,13 @@ app.post('/api', async (req, res) => {
                 messages: [
                     {
                         role: 'system',
-                        content: '你是智能搜索助手，用中文给出清晰详细的回答'
+                        content: imageBase64
+                            ? '你是多模态图片问答助手。请认真观察用户上传的图片，并用中文直接回答用户的问题。不要声称无法看图，除非图片确实不可读。'
+                            : '你是智能搜索助手，用中文给出清晰详细的回答'
                     },
                     {
                         role: 'user',
-                        content: query.trim()
+                        content: userContent
                     }
                 ]
             })
