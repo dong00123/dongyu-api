@@ -376,67 +376,66 @@
         questionInput.value = '请详细描述这张照片的内容';
         questionInput.focus();
     });
+    async function fetchWithTimeout(url, options = {}, timeout = 60000) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+    try {
+        return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+        clearTimeout(timer);
+    }
+}
 
-    // 智能模拟回答，更像真AI
-    submitBtn.addEventListener('click', async () => {
-        const question = questionInput.value.trim();
-        if (!selectedImageBase64) {
-            alert('请先上传一张照片/图片');
-            return;
-        }
-        if (!question) {
-            alert('请输入你的问题');
-            return;
-        }
-        loading.classList.add('active');
-        resultArea.classList.remove('active');
-        submitBtn.disabled = true;
-        try {
-            // 自动识别文字（如果还没识别过）
-            if (!ocrTextCache) {
-                const img = await preprocessImage(selectedImageBase64);
-                const res = await Tesseract.recognize(img, 'eng+chi_sim', { psm: 6 });
-                let text = res.data.text.trim();
-                text = text.replace(/[^\x20-\x7E\u4E00-\u9FA5]/g, '').replace(/\s+/g, '\n').trim();
-                ocrTextCache = text;
-            }
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            let answer = "";
-            const hasText = ocrTextCache && ocrTextCache.length > 0;
+// 把图片和问题发给后端，由真实多模态模型回答
+submitBtn.addEventListener('click', async () => {
+    const question = questionInput.value.trim();
 
-            if (question.includes('描述') || question.includes('是什么') || question.includes('内容')) {
-                answer = "这是一张实景照片，画面包含具体的场景元素和细节信息。";
-                if (hasText) answer += `\n\n图片内识别到文字内容：\n${ocrTextCache}`;
-                answer += "\n\n如果你想了解更具体的信息，可以提问：识别文字、翻译、解读含义、分析场景等。";
-            } else if (question.includes('文字') || question.includes('识别') || question.includes('写了什么')) {
-                if (hasText) {
-                    answer = `图片中的文字内容：\n${ocrTextCache}`;
-                } else {
-                    answer = "这张照片里没有识别出清晰可读的文字。如果需要，你可以尝试重新拍摄更清晰的照片，或调整拍摄角度。";
-                }
-            } else if (question.includes('翻译')) {
-                if (hasText) {
-                    answer = `原文：\n${ocrTextCache}\n\n翻译：已根据图文内容完成对应释义。`;
-                } else {
-                    answer = "未检测到可翻译的文字内容。";
-                }
-            } else {
-                answer = `针对你的问题：「${question}」\n\n我结合这张照片画面与识别信息为你解答：\n这张图片展示了现实场景，结合画面信息综合判断，已理解你的需求。`;
-                if (hasText) answer += `\n\n附图片文字：\n${ocrTextCache}`;
-            }
+    if (!selectedImageBase64) {
+        alert('请先上传一张照片/图片');
+        return;
+    }
 
-            resultTitle.innerText = '照片问答结果';
-            resultContent.innerText = answer;
-            resultArea.classList.add('active');
-        } catch (err) {
-            resultTitle.innerText = '回答失败';
-            resultContent.innerText = '分析图片出错，请重新上传或稍后再试';
-            resultArea.classList.add('active');
-        } finally {
-            loading.classList.remove('active');
-            submitBtn.disabled = false;
+    if (!question) {
+        alert('请输入你的问题');
+        return;
+    }
+
+    loading.classList.add('active');
+    resultArea.classList.remove('active');
+    submitBtn.disabled = true;
+
+    try {
+        const response = await fetchWithTimeout('/api', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                query: question,
+                imageBase64: selectedImageBase64
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || '服务返回异常');
         }
-    });
+
+        resultTitle.innerText = '照片问答结果';
+        resultContent.innerText = data.answer || '未获取到有效回答';
+        resultArea.classList.add('active');
+    } catch (err) {
+        resultTitle.innerText = '回答失败';
+        resultContent.innerText = err.name === 'AbortError'
+            ? '请求超时，请稍后再试'
+            : (err.message || '分析图片出错，请重新上传或稍后再试');
+        resultArea.classList.add('active');
+    } finally {
+        loading.classList.remove('active');
+        submitBtn.disabled = false;
+    }
+});
+
+    
 </script>
 </body>
 </html>
