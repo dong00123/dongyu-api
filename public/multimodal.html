@@ -336,41 +336,45 @@
     }
 
     // 增强版OCR识别
-    ocrBtn.addEventListener('click', async () => {
-        if (!selectedImageBase64) return;
-        ocrBtn.disabled = true;
-        loading.classList.add('active');
-        resultArea.classList.remove('active');
-        try {
-            const img = await preprocessImage(selectedImageBase64);
-            const res = await Tesseract.recognize(img, 'eng+chi_sim', {
-                psm: 6,
-                oem: 3,
-                langPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@v4.1.1/dist/lang/'
-            });
-            let text = res.data.text.trim();
-            // 清理乱码
-            text = text.replace(/[^\x20-\x7E\u4E00-\u9FA5，。！？、；：""''（）《》【】]/g, '');
-            text = text.replace(/\s+/g, '\n').trim();
-            ocrTextCache = text;
+    // 使用后端大模型识别图片文字
+ocrBtn.addEventListener('click', async () => {
+    if (!selectedImageBase64) return;
 
-            if (text) {
-                resultTitle.innerText = '图片文字提取结果';
-                resultContent.innerText = `识别到的文字：\n\n${text}`;
-            } else {
-                resultTitle.innerText = '图片文字提取结果';
-                resultContent.innerText = '未识别到清晰可读的文字（可能是文字模糊、角度倾斜或背景复杂）';
-            }
-            resultArea.classList.add('active');
-        } catch (err) {
-            resultTitle.innerText = '提取失败';
-            resultContent.innerText = '文字识别出错，请重试';
-            resultArea.classList.add('active');
-        } finally {
-            loading.classList.remove('active');
-            ocrBtn.disabled = false;
+    ocrBtn.disabled = true;
+    loading.classList.add('active');
+    resultArea.classList.remove('active');
+
+    try {
+        const response = await fetchWithTimeout('/api', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                query: '请识别图片中的所有文字，尽量保持原文、标点和换行。如果是手写字，请尽量辨认；看不清的地方用「[看不清]」标注。',
+                imageBase64: selectedImageBase64
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || '服务返回异常');
         }
-    });
+
+        ocrTextCache = data.answer || '';
+        resultTitle.innerText = '图片文字提取结果';
+        resultContent.innerText = ocrTextCache || '未获取到有效文字';
+        resultArea.classList.add('active');
+    } catch (err) {
+        resultTitle.innerText = '提取失败';
+        resultContent.innerText = err.name === 'AbortError'
+            ? '请求超时，请稍后再试'
+            : (err.message || '文字识别出错，请重试');
+        resultArea.classList.add('active');
+    } finally {
+        loading.classList.remove('active');
+        ocrBtn.disabled = false;
+    }
+});
 
     describeBtn.addEventListener('click', () => {
         questionInput.value = '请详细描述这张照片的内容';
