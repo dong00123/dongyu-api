@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能客服系统v3.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "Noto Sans SC", sans-serif;
+        }
+        body {
+            display: flex;
+            height: 100vh;
+            background: #ffffff;
+            color: #333;
+        }
+        /* 左侧侧边栏 */
+        .sidebar {
+            width: 200px;
+            background: #f0f4f9;
+            border-right: 1px solid #e1e7f0;
+            padding: 20px 0;
+        }
+        .sidebar-logo {
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 30px;
+        }
+        .sidebar-logo .icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        .sidebar-logo p {
+            color: #666;
+            font-size: 14px;
+        }
+        .side-title {
+            padding: 0 24px;
+            font-size: 13px;
+            color: #999;
+            margin: 20px 0 10px;
+        }
+        .side-menu {
+            list-style: none;
+        }
+        .side-menu li a {
+            display: block;
+            padding: 10px 24px;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .side-menu li a:hover {
+            background: #dde6f3;
+            color: #4068d8;
+        }
+        .side-menu li a.active {
+            background: #dde6f3;
+            color: #4068d8;
+            border-right: 3px solid #4068d8;
+        }
+        /* 快捷测试按钮区 */
+        .quick-btn-wrap {
+            padding: 0 16px;
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .quick-btn {
+            padding: 8px 4px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .btn-orange { background: #f7b86c; color: #fff; }
+        .btn-red { background: #f26c6c; color: #fff; }
+        .btn-green { background: #66c766; color: #fff; }
+        .btn-blue { background: #6c98f7; color: #fff; }
+        /* 右侧主内容区 */
+        .main-box {
+            flex: 1;
+            padding: 30px 40px;
+            display: flex;
+            flex-direction: column;
+        }
+        .header-bar {
+            background: linear-gradient(90deg, #5288f7, #9c68e8);
+            color: #fff;
+            text-align: center;
+            padding: 16px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+        .status-bar {
+            background: #52c462;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+        }
+        .center-desc {
+            text-align: center;
+            color: #999;
+            margin-top: 80px;
+        }
+        .input-bottom {
+            margin-top: auto;
+            border-top: 1px solid #eee;
+            padding-top: 16px;
+        }
+        .input-bottom input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧侧边栏 -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <div class="icon">💬</div>
+            <p>智能客服系统</p>
+        </div>
+        <div class="side-title">设置</div>
+        <ul class="side-menu">
+            <li><a href="#">功能菜单</a></li>
+            <li><a href="#" class="active">订单查询</a></li>
+            <li><a href="#">产品推荐</a></li>
+            <li><a href="#">退款处理</a></li>
+            <li><a href="#">知识查询</a></li>
+            <li><a href="#">人工客服</a></li>
+        </ul>
+        <div class="side-title">快捷测试</div>
+        <div class="quick-btn-wrap">
+            <button class="quick-btn btn-orange">查询订单</button>
+            <button class="quick-btn btn-red">退款申请</button>
+            <button class="quick-btn btn-green">产品推荐</button>
+            <button class="quick-btn btn-blue">转人工</button>
+            <button class="quick-btn btn-green">知识查询</button>
+            <button class="quick-btn btn-blue">测试</button>
+        </div>
+    </div>
+    <!-- 右侧主界面 -->
+    <div class="main-box">
+        <div class="header-bar">
+            <span>⚪ 智能客服系统 v3.0</span>
+        </div>
+        <div class="status-bar">
+            ✅ 所有测试通过 (7/7)
+        </div>
+        <div class="center-desc">
+            <p>智能客服系统 v3.0 | 基于 GPT-3.5 + LangChain</p>
+            <p style="margin-top:8px;">测试通过率: 100% (7/7)</p>
+        </div>
+        <!-- 底部输入框 -->
+        <div class="input-bottom">
+            <input placeholder="请输入您的问题...">
+        </div>
+    </div>
+</body>
+</html>
