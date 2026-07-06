@@ -4,123 +4,280 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>智能客服系统v3.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "Microsoft YaHei", "Noto Sans SC", sans-serif;
+            font-family: 'Noto Sans SC', sans-serif;
         }
         body {
             display: flex;
             height: 100vh;
-            background: #ffffff;
+            background: #f5f7fa;
             color: #333;
         }
         /* 左侧侧边栏 */
         .sidebar {
-            width: 200px;
-            background: #f0f4f9;
-            border-right: 1px solid #e1e7f0;
-            padding: 20px 0;
+            width: 240px;
+            background: #fff;
+            border-right: 1px solid #e5e7eb;
+            padding: 24px 0;
         }
-        .sidebar-logo {
+        .sidebar-header {
             text-align: center;
-            padding: 10px;
-            margin-bottom: 30px;
+            padding: 0 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 20px;
         }
-        .sidebar-logo .icon {
-            font-size: 48px;
+        .robot-icon {
+            font-size: 72px;
             margin-bottom: 8px;
         }
-        .sidebar-logo p {
-            color: #666;
-            font-size: 14px;
+        .sidebar-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
-        .side-title {
+        .version-tag {
+            font-size: 12px;
+            background: #4080ff;
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+        .side-menu-title {
             padding: 0 24px;
-            font-size: 13px;
+            font-size: 12px;
             color: #999;
-            margin: 20px 0 10px;
+            margin: 24px 0 8px;
         }
         .side-menu {
             list-style: none;
         }
         .side-menu li a {
-            display: block;
-            padding: 10px 24px;
-            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            color: #555;
             text-decoration: none;
             font-size: 14px;
-        }
-        .side-menu li a:hover {
-            background: #dde6f3;
-            color: #4068d8;
+            transition: 0.2s;
         }
         .side-menu li a.active {
-            background: #dde6f3;
-            color: #4068d8;
-            border-right: 3px solid #4068d8;
+            background: #e8f0ff;
+            color: #4080ff;
+            border-right: 3px solid #4080ff;
         }
-        /* 快捷测试按钮区 */
-        .quick-btn-wrap {
+        .side-menu li a:hover {
+            background: #f0f6ff;
+            color: #4080ff;
+        }
+        .quick-box {
             padding: 0 16px;
-            margin-top: 20px;
+            margin-top: 24px;
+        }
+        .quick-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 10px;
         }
         .quick-btn {
-            padding: 8px 4px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
+            padding: 12px 6px;
+            background: #f0f4ff;
+            border-radius: 8px;
+            text-align: center;
             font-size: 13px;
+            color: #3366cc;
+            cursor: pointer;
+            transition: 0.2s;
         }
-        .btn-orange { background: #f7b86c; color: #fff; }
-        .btn-red { background: #f26c6c; color: #fff; }
-        .btn-green { background: #66c766; color: #fff; }
-        .btn-blue { background: #6c98f7; color: #fff; }
-        /* 右侧主内容区 */
-        .main-box {
+        .quick-btn:hover {
+            background: #dce8ff;
+        }
+        /* 右侧主区域 */
+        .main-wrap {
             flex: 1;
-            padding: 30px 40px;
             display: flex;
             flex-direction: column;
         }
-        .header-bar {
-            background: linear-gradient(90deg, #5288f7, #9c68e8);
-            color: #fff;
+        /* 顶部导航栏 */
+        .top-nav {
+            height: 60px;
+            background: #fff;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+        .nav-left button {
+            border: none;
+            background: transparent;
+            font-size: 20px;
+            cursor: pointer;
+            margin-right: 16px;
+        }
+        .nav-left .home-btn {
+            background: #e8f0ff;
+            color: #4080ff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .nav-right {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+        .nav-icon {
+            font-size: 20px;
+            color: #666;
+            cursor: pointer;
+            position: relative;
+        }
+        .badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #f53f3f;
+            color: white;
+            font-size: 10px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .admin-user {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #4080ff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        /* 页面内容 */
+        .page-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+        .banner-top {
+            background: linear-gradient(90deg, #5288ff, #9c68f0);
+            border-radius: 12px;
+            padding: 32px 24px;
             text-align: center;
-            padding: 16px;
+            color: #fff;
+            margin-bottom: 16px;
+        }
+        .banner-top h1 {
+            font-size: 42px;
+            margin-bottom: 8px;
+        }
+        .banner-top p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .test-status-bar {
+            background: #e6f9e8;
             border-radius: 10px;
-            font-size: 24px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .status-text {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            color: #009944;
             font-weight: 500;
+        }
+        .detail-btn {
+            background: #fff;
+            border: 1px solid #00b450;
+            color: #009944;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .card-main {
+            background: #fff;
+            border-radius: 12px;
+            padding: 40px 24px;
+        }
+        .summary-icon {
+            text-align: center;
+            font-size: 64px;
+            color: #36c985;
             margin-bottom: 12px;
         }
-        .status-bar {
-            background: #52c462;
-            color: #fff;
+        .summary-title {
             text-align: center;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 40px;
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 10px;
         }
-        .center-desc {
+        .summary-sub {
             text-align: center;
+            color: #888;
+            margin-bottom: 32px;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 16px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-num {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+        .stat-label {
+            font-size: 13px;
             color: #999;
-            margin-top: 80px;
+            margin-top: 4px;
         }
-        .input-bottom {
-            margin-top: auto;
+        .time-tip {
+            text-align: center;
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+        .recent-log {
             border-top: 1px solid #eee;
-            padding-top: 16px;
+            padding-top: 20px;
         }
-        .input-bottom input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+        .log-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .log-item {
+            display: flex;
+            justify-content: space-between;
+            color: #666;
             font-size: 14px;
         }
     </style>
@@ -128,44 +285,93 @@
 <body>
     <!-- 左侧侧边栏 -->
     <div class="sidebar">
-        <div class="sidebar-logo">
-            <div class="icon">💬</div>
-            <p>智能客服系统</p>
+        <div class="sidebar-header">
+            <div class="robot-icon">🤖</div>
+            <h2>智能客服系统 <span class="version-tag">v3.0</span></h2>
         </div>
-        <div class="side-title">设置</div>
         <ul class="side-menu">
-            <li><a href="#">功能菜单</a></li>
-            <li><a href="#" class="active">订单查询</a></li>
-            <li><a href="#">产品推荐</a></li>
-            <li><a href="#">退款处理</a></li>
-            <li><a href="#">知识查询</a></li>
-            <li><a href="#">人工客服</a></li>
+            <li><a href="#" class="active">🏠 首页</a></li>
         </ul>
-        <div class="side-title">快捷测试</div>
-        <div class="quick-btn-wrap">
-            <button class="quick-btn btn-orange">查询订单</button>
-            <button class="quick-btn btn-red">退款申请</button>
-            <button class="quick-btn btn-green">产品推荐</button>
-            <button class="quick-btn btn-blue">转人工</button>
-            <button class="quick-btn btn-green">知识查询</button>
-            <button class="quick-btn btn-blue">测试</button>
+        <div class="side-menu-title">设置</div>
+        <ul class="side-menu">
+            <li><a href="#">⚙️ 功能菜单</a></li>
+            <li><a href="#">📖 知识管理</a></li>
+            <li><a href="#">🤖 机器人管理</a></li>
+            <li><a href="#">📡 渠道管理</a></li>
+            <li><a href="#">📋 工单管理</a></li>
+            <li><a href="#">📊 数据分析</a></li>
+            <li><a href="#">🔧 系统配置</a></li>
+            <li><a href="#">👥 角色权限</a></li>
+            <li><a href="#">📜 日志中心</a></li>
+        </ul>
+        <div class="side-menu-title">快捷入口</div>
+        <div class="quick-box">
+            <div class="quick-grid">
+                <div class="quick-btn">📖 新建知识<br><small>添加知识条目</small></div>
+                <div class="quick-btn">💬 测试机器人<br><small>调试对话效果</small></div>
+                <div class="quick-btn">📋 创建工单<br><small>提交客户工单</small></div>
+                <div class="quick-btn">📊 数据看板<br><small>查看运营数据</small></div>
+            </div>
         </div>
     </div>
-    <!-- 右侧主界面 -->
-    <div class="main-box">
-        <div class="header-bar">
-            <span>⚪ 智能客服系统 v3.0</span>
+
+    <!-- 右侧主页面 -->
+    <div class="main-wrap">
+        <!-- 顶部导航 -->
+        <div class="top-nav">
+            <div class="nav-left">
+                <button>☰</button>
+                <button class="home-btn">首页</button>
+            </div>
+            <div class="nav-right">
+                <div class="nav-icon">🔔<span class="badge">12</span></div>
+                <div class="nav-icon">❓</div>
+                <div class="nav-icon">⛶</div>
+                <div class="admin-user">A</div>
+                <span>admin</span>
+            </div>
         </div>
-        <div class="status-bar">
-            ✅ 所有测试通过 (7/7)
-        </div>
-        <div class="center-desc">
-            <p>智能客服系统 v3.0 | 基于 GPT-3.5 + LangChain</p>
-            <p style="margin-top:8px;">测试通过率: 100% (7/7)</p>
-        </div>
-        <!-- 底部输入框 -->
-        <div class="input-bottom">
-            <input placeholder="请输入您的问题...">
+        <!-- 内容区域 -->
+        <div class="page-content">
+            <div class="banner-top">
+                <h1>智能客服系统 v3.0</h1>
+                <p>更智能 · 更高效 · 更贴心</p>
+            </div>
+            <div class="test-status-bar">
+                <div class="status-text">✅ 所有测试已通过 (7/7)</div>
+                <button class="detail-btn">查看测试详情 ></button>
+            </div>
+            <div class="card-main">
+                <div class="summary-icon">📋</div>
+                <div class="summary-title">系统检测摘要</div>
+                <div class="summary-sub">智能客服系统 v3.0 | 基于 GPT-4o + LangChain</div>
+                <div class="stat-row">
+                    <div class="stat-item">
+                        <div class="stat-num">7 个</div>
+                        <div class="stat-label">测试用例</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num">7 个</div>
+                        <div class="stat-label">通过用例</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num">0 个</div>
+                        <div class="stat-label">失败用例</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num">100%</div>
+                        <div class="stat-label">通过率</div>
+                    </div>
+                </div>
+                <div class="time-tip">最后检测时间: 2025-05-23 14:30:28</div>
+                <div class="recent-log">
+                    <div class="log-title">📈 最近动态</div>
+                    <div class="log-item">
+                        <span>测试集 [回归测试-0523] 执行完成</span>
+                        <span>14:30:28</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </body>
