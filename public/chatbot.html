@@ -615,6 +615,8 @@
         })
         // 显示目标页面
         document.getElementById(`page-${pageName}`).classList.add("show");
+        // 切换页面自动加载接口数据渲染列表
+        loadPageData(pageName);
     }
     // 绑定左侧菜单点击
     document.querySelectorAll(".menu-item").forEach(item=>{
@@ -624,14 +626,187 @@
         })
     })
 
-    // 快捷提问按钮填充
+    // 各页面加载接口数据并渲染页面内容
+    async function loadPageData(page) {
+        switch(page) {
+            case "funcMenu":
+                const funcRes = await fetch(`${API_BASE}/api/funcMenu`);
+                const funcData = await funcRes.json();
+                document.querySelector("#page-funcMenu .func-card").innerHTML = `
+                    <h2>⚙️ 功能菜单管理</h2>
+                    <div class="func-desc">配置机器人支持的业务功能：订单查询、退款处理、产品推荐、人工转接等</div>
+                    <p>后端接口：/api/funcMenu</p>
+                    <h3 style="margin-top:20px;margin-bottom:10px;">全部功能列表</h3>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        ${funcData.list.map(item=>`<span style="padding:6px 12px;background:#e8f0ff;color:#4080ff;border-radius:6px;">${item}</span>`).join('')}
+                    </div>
+                    <h3 style="margin-top:20px;margin-bottom:10px;">已启用功能</h3>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        ${funcData.enable.map(item=>`<span style="padding:6px 12px;background:#52c462;color:#fff;border-radius:6px;">${item}</span>`).join('')}
+                    </div>
+                `;
+                break;
+            case "knowledge":
+                const knowRes = await fetch(`${API_BASE}/api/knowledge`);
+                const knowData = await knowRes.json();
+                document.querySelector("#page-knowledge .func-card").innerHTML = `
+                    <h2>📖 知识管理</h2>
+                    <div class="func-desc">新增/编辑/删除知识库条目，机器人根据知识库回答用户问题</div>
+                    <p>后端接口：/api/knowledge</p>
+                    <h3 style="margin-top:20px;margin-bottom:10px;">知识库数据列表</h3>
+                    <div>
+                        ${knowData.list.map(item=>`
+                            <div style="border:1px solid #eee;padding:12px;border-radius:8px;margin-bottom:10px;">
+                                <div><strong>问题：</strong>${item.question}</div>
+                                <div style="margin-top:6px;color:#555;"><strong>回答：</strong>${item.answer}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                break;
+            case "robotMgr":
+                const robotRes = await fetch(`${API_BASE}/api/robot`);
+                const robotData = await robotRes.json();
+                document.querySelector("#page-robotMgr .func-card").innerHTML = `
+                    <h2>🤖 机器人管理</h2>
+                    <div class="func-desc">创建多个客服机器人、配置模型参数、开关自动回复</div>
+                    <p>后端接口：/api/robot</p>
+                    <div style="margin-top:20px;">
+                        ${robotData.robots.map(r=>`
+                            <div style="border:1px solid #eee;padding:14px;border-radius:8px;margin-bottom:10px;">
+                                <div><strong>机器人名称：</strong>${r.name}</div>
+                                <div><strong>使用模型：</strong>${r.model}</div>
+                                <div><strong>运行状态：</strong>${r.status ? "✅ 正常启用" : "❌ 已关闭"}</div>
+                                <div><strong>欢迎话术：</strong>${r.welcome}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                break;
+            case "channel":
+                const chRes = await fetch(`${API_BASE}/api/channel`);
+                const chData = await chRes.json();
+                document.querySelector("#page-channel .func-card").innerHTML = `
+                    <h2>📡 渠道管理</h2>
+                    <div class="func-desc">对接网站、小程序、APP等客服接入渠道</div>
+                    <p>后端接口：/api/channel</p>
+                    <h3 style="margin-top:20px;margin-bottom:10px;">已接入渠道</h3>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                        ${chData.channels.map(c=>`<span style="padding:8px 16px;background:#f0f4ff;border-radius:8px;">${c}</span>`).join('')}
+                    </div>
+                `;
+                break;
+            case "ticket":
+                const tickRes = await fetch(`${API_BASE}/api/ticket`);
+                const tickData = await tickRes.json();
+                document.querySelector("#page-ticket .func-card").innerHTML = `
+                    <h2>📋 工单管理</h2>
+                    <div class="func-desc">用户转人工自动生成工单，查看、分配、完结工单</div>
+                    <p>后端接口：/api/ticket</p>
+                    <h3 style="margin-top:20px;margin-bottom:10px;">工单列表</h3>
+                    <div>
+                        ${tickData.list.map(t=>`
+                            <div style="border:1px solid #eee;padding:12px;border-radius:8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+                                <div>
+                                    <div>工单号：${t.ticketId}</div>
+                                    <div>咨询用户：${t.user}</div>
+                                    <div>工单类型：${t.type}</div>
+                                </div>
+                                <div style="font-weight:500;color:${t.status==='待处理'?'#f53f3f':'#009944'}">${t.status}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                break;
+            case "data":
+                const dataRes = await fetch(`${API_BASE}/api/data`);
+                const dataData = await dataRes.json();
+                document.querySelector("#page-data .func-card").innerHTML = `
+                    <h2>📊 数据分析看板</h2>
+                    <div class="func-desc">对话量、问答准确率、工单数量、用户咨询热点统计图表</div>
+                    <p>后端接口：/api/data</p>
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:24px;text-align:center;">
+                        <div style="padding:18px;background:#f0f4ff;border-radius:10px;">
+                            <div style="font-size:26px;font-weight:bold;">${dataData.totalChat}</div>
+                            <div style="color:#666;margin-top:6px;">总对话量</div>
+                        </div>
+                        <div style="padding:18px;background:#e6f9e8;border-radius:10px;">
+                            <div style="font-size:26px;font-weight:bold;color:#009944;">${dataData.passRate}</div>
+                            <div style="color:#666;margin-top:6px;">问答通过率</div>
+                        </div>
+                        <div style="padding:18px;background:#fff3e8;border-radius:10px;">
+                            <div style="font-size:26px;font-weight:bold;color:#f77d36;">${dataData.ticketTotal}</div>
+                            <div style="color:#666;margin-top:6px;">总工单数量</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:24px;">
+                        <h3>热门咨询问题</h3>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+                            ${dataData.hotQuestion.map(h=>`<span style="padding:6px 14px;background:#eee;border-radius:6px;">${h}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+                break;
+            case "sysConfig":
+                const cfgRes = await fetch(`${API_BASE}/api/config`);
+                const cfgData = await cfgRes.json();
+                document.querySelector("#page-sysConfig .func-card").innerHTML = `
+                    <h2>🔧 系统配置</h2>
+                    <div class="func-desc">API密钥、模型地址、回复阈值、欢迎语全局配置</div>
+                    <p>后端接口：/api/config</p>
+                    <div style="margin-top:24px;line-height:2.2;font-size:15px;">
+                        <div><strong>机器人欢迎语：</strong>${cfgData.welcomeText}</div>
+                        <div><strong>当前使用模型：</strong>${cfgData.modelName}</div>
+                        <div><strong>知识库匹配阈值：</strong>${cfgData.similarityThreshold}</div>
+                        <div><strong>自动转人工开关：</strong>${cfgData.transferManualSwitch ? "已开启" : "已关闭"}</div>
+                    </div>
+                `;
+                break;
+            case "role":
+                const roleRes = await fetch(`${API_BASE}/api/role`);
+                const roleData = await roleRes.json();
+                document.querySelector("#page-role .func-card").innerHTML = `
+                    <h2>👥 角色权限管理</h2>
+                    <div class="func-desc">管理员、客服、只读账号权限分配</div>
+                    <p>后端接口：/api/role</p>
+                    <h3 style="margin-top:20px;margin-bottom:10px;">系统角色列表</h3>
+                    <div>
+                        ${roleData.roles.map(r=>`<div style="padding:10px 0;border-bottom:1px solid #eee;font-size:15px;">${r}</div>`).join('')}
+                    </div>
+                `;
+                break;
+            case "log":
+                const logRes = await fetch(`${API_BASE}/api/log`);
+                const logData = await logRes.json();
+                document.querySelector("#page-log .func-card").innerHTML = `
+                    <h2>📜 日志中心</h2>
+                    <div class="func-desc">用户对话日志、操作日志、报错日志查询导出</div>
+                    <p>后端接口：/api/log</p>
+                    <h3 style="margin-top:20px;margin-bottom:10px;">操作日志记录</h3>
+                    <div>
+                        ${logData.logs.map(l=>`
+                            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;">
+                                <span>${l.content}</span>
+                                <span style="color:#999;">${l.time}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                break;
+        }
+    }
+
+    // 页面初始化加载首页数据
+    loadPageData("home");
+
+    // 快捷提问按钮填充输入框并切回聊天页
     function fastAsk(text) {
         userInput.value = text;
         userInput.focus();
         switchPage("home");
     }
 
-    // 追加消息到聊天框
+    // 聊天消息渲染
     function appendMsg(type, text) {
         const div = document.createElement("div");
         div.className = type === "user" ? "msg-user" : "msg-bot";
@@ -640,7 +815,7 @@
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // XSS转义
+    // XSS字符转义
     function escapeHtml(str) {
         if (!str) return "";
         let s = str.replace(/&/g,"&amp;");
@@ -649,7 +824,7 @@
         return s;
     }
 
-    // 发送提问
+    // 发送对话请求
     async function sendQuestion() {
         if (loading) return;
         const q = userInput.value.trim();
@@ -660,7 +835,6 @@
         loading = true;
         sendBtn.disabled = true;
 
-        // 加载提示
         const loadingTip = document.createElement("div");
         loadingTip.className = "loading-msg";
         loadingTip.innerText = "机器人思考中...";
@@ -686,9 +860,7 @@
         }
     }
 
-    // 绑定点击发送
     sendBtn.addEventListener("click", sendQuestion);
-    // 回车发送
     userInput.addEventListener("keydown", e => {
         if (e.key === "Enter") sendQuestion();
     });
