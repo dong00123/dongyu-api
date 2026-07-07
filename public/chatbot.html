@@ -593,7 +593,7 @@
                 </div>
             </div>
 
-            <!-- 2. 功能菜单【核心修改：订单查询/产品推荐/退款处理弹窗详情完善】 -->
+            <!-- 2. 功能菜单【核心：订单/产品/退款弹窗带虚构真实业务数据】 -->
             <div class="page-item" id="page-funcMenu">
                 <div class="func-card">
                     <h2>⚙️ 功能菜单管理</h2>
@@ -601,17 +601,17 @@
                     <p>后端接口：/api/funcMenu</p>
                     <h3 style="margin-top:20px;">全部功能列表</h3>
                     <div style="margin:10px 0;">
-                        <span class="tag-blue" onclick="openDetail('订单查询','【功能完整说明】\n1. 触发方式：用户发送手机号、订单编号、快递单号自动识别；\n2. 展示内容：商品名称、规格、下单时间、支付金额、物流轨迹、售后记录；\n3. 状态覆盖：待付款、待发货、运输中、已签收、退货中、退款完成；\n4. 配套能力：自动推送物流更新、售后入口、补发/换货引导话术。')">订单查询</span>
-                        <span class="tag-blue" onclick="openDetail('产品推荐','【功能完整说明】\n1. 推荐逻辑：基于用户浏览、咨询、下单历史做协同过滤匹配；\n2. 推送形式：对话末尾自动弹出3款同类商品，搭配优惠活动；\n3. 自定义配置：可设置推荐数量、过滤下架商品、限制低价商品；\n4. 业务价值：提升商品转化率，减少人工手动推销。')">产品推荐</span>
-                        <span class="tag-blue" onclick="openDetail('退款处理','【功能完整说明】\n1. 自助操作：用户可发起全额退款、部分退款、仅退运费；\n2. 校验规则：自动判断订单是否满足7天无理由、商品是否已拆封；\n3. 进度同步：实时展示商家审核状态、退款到账渠道、预计到账时效；\n4. 异常处理：拒绝退款时自动推送申诉入口，转人工复核。')">退款处理</span>
+                        <span class="tag-blue" onclick="openDetail('订单查询','【订单查询完整功能+虚构订单示例】\n1. 识别触发：用户输入手机号、订单号、快递单号自动解析；\n2. 可展示完整订单信息：\n订单编号：DD20260707001\n购买商品：夏季纯棉短袖T恤（白色L码）\n实付金额：89.9元 | 下单时间：2026-07-05 19:22\n物流单号：SF1234567890 | 当前状态：运输中\n物流轨迹：7月6日 已揽收 → 7月7日 中转仓发出\n3. 支持状态：待付款、待发货、运输中、已签收、退货、退款完成；\n4. 自动推送售后、换货、修改收货地址引导话术。')">订单查询</span>
+                        <span class="tag-blue" onclick="openDetail('产品推荐','【产品推荐完整功能+虚构推荐商品示例】\n1. 推荐逻辑：根据用户浏览、咨询、下单记录智能匹配同类商品；\n2. 自动推送商品示例（对话结束自动弹出）：\n① 纯棉冰丝短裤 售价59元 搭配T恤满130减30\n② 透气防晒冰袖 售价29.9元 两件8折\n③ 轻薄遮阳帽 售价39元 下单赠送冰袋\n3. 后台自定义：推荐数量、过滤下架商品、限制低价商品；\n4. 业务价值：提升商品成交转化率，减少人工手动推销。')">产品推荐</span>
+                        <span class="tag-blue" onclick="openDetail('退款处理','【退款处理完整功能+虚构退款订单流程】\n1. 支持退款类型：全额退款、部分退款、仅退运费；\n2. 校验规则：自动判断7天无理由、商品是否拆封、是否超售后时效；\n3. 示例退款订单流程：\n订单号：DD20260701005 商品：休闲运动长裤\n用户申请：全额退款 退款原因：尺码偏大\n系统自动校验：满足7天无理由，自动推送退货地址\n商家审核：已同意退款\n预计到账：1-3个工作日原路退回微信支付\n4. 拒绝退款时自动弹出申诉入口，一键转接人工复核。')">退款处理</span>
                         <span class="tag-blue" onclick="openDetail('知识查询','检索知识库自动回复常规咨询问题')">知识查询</span>
                         <span class="tag-blue" onclick="openDetail('转人工','机器人无法解答时自动转接真人客服接待')">转人工</span>
                     </div>
                     <h3 style="margin-top:20px;">已启用功能</h3>
                     <div style="margin:10px 0;">
-                        <span class="tag-green" onclick="openDetail('订单查询','当前状态：已启用\n【功能完整说明】\n1. 触发方式：用户发送手机号、订单编号、快递单号自动识别；\n2. 展示内容：商品名称、规格、下单时间、支付金额、物流轨迹、售后记录；\n3. 状态覆盖：待付款、待发货、运输中、已签收、退货中、退款完成；\n4. 配套能力：自动推送物流更新、售后入口、补发/换货引导话术。')">订单查询</span>
-                        <span class="tag-green" onclick="openDetail('产品推荐','当前状态：已启用\n【功能完整说明】\n1. 推荐逻辑：基于用户浏览、咨询、下单历史做协同过滤匹配；\n2. 推送形式：对话末尾自动弹出3款同类商品，搭配优惠活动；\n3. 自定义配置：可设置推荐数量、过滤下架商品、限制低价商品；\n4. 业务价值：提升商品转化率，减少人工手动推销。')">产品推荐</span>
-                        <span class="tag-green" onclick="openDetail('退款处理','当前状态：已启用\n【功能完整说明】\n1. 自助操作：用户可发起全额退款、部分退款、仅退运费；\n2. 校验规则：自动判断订单是否满足7天无理由、商品是否已拆封；\n3. 进度同步：实时展示商家审核状态、退款到账渠道、预计到账时效；\n4. 异常处理：拒绝退款时自动推送申诉入口，转人工复核。')">退款处理</span>
+                        <span class="tag-green" onclick="openDetail('订单查询','当前状态：已启用\n【订单查询完整功能+虚构订单示例】\n1. 识别触发：用户输入手机号、订单号、快递单号自动解析；\n2. 可展示完整订单信息：\n订单编号：DD20260707001\n购买商品：夏季纯棉短袖T恤（白色L码）\n实付金额：89.9元 | 下单时间：2026-07-05 19:22\n物流单号：SF1234567890 | 当前状态：运输中\n物流轨迹：7月6日 已揽收 → 7月7日 中转仓发出\n3. 支持状态：待付款、待发货、运输中、已签收、退货、退款完成；\n4. 自动推送售后、换货、修改收货地址引导话术。')">订单查询</span>
+                        <span class="tag-green" onclick="openDetail('产品推荐','当前状态：已启用\n【产品推荐完整功能+虚构推荐商品示例】\n1. 推荐逻辑：根据用户浏览、咨询、下单记录智能匹配同类商品；\n2. 自动推送商品示例（对话结束自动弹出）：\n① 纯棉冰丝短裤 售价59元 搭配T恤满130减30\n② 透气防晒冰袖 售价29.9元 两件8折\n③ 轻薄遮阳帽 售价39元 下单赠送冰袋\n3. 后台自定义：推荐数量、过滤下架商品、限制低价商品；\n4. 业务价值：提升商品成交转化率，减少人工手动推销。')">产品推荐</span>
+                        <span class="tag-green" onclick="openDetail('退款处理','当前状态：已启用\n【退款处理完整功能+虚构退款订单流程】\n1. 支持退款类型：全额退款、部分退款、仅退运费；\n2. 校验规则：自动判断7天无理由、商品是否拆封、是否超售后时效；\n3. 示例退款订单流程：\n订单号：DD20260701005 商品：休闲运动长裤\n用户申请：全额退款 退款原因：尺码偏大\n系统自动校验：满足7天无理由，自动推送退货地址\n商家审核：已同意退款\n预计到账：1-3个工作日原路退回微信支付\n4. 拒绝退款时自动弹出申诉入口，一键转接人工复核。')">退款处理</span>
                     </div>
                 </div>
             </div>
@@ -745,7 +745,7 @@
     const sendBtn = document.getElementById("sendBtn");
     let loading = false;
 
-    // 弹窗详情
+    // 弹窗核心函数（修复穿透，换行正常显示）
     function openDetail(title, content) {
         const modalBox = `
             <div class="modal-mask" onclick="closeModal(event)">
@@ -940,7 +940,7 @@
         return s;
     }
 
-    // 发送对话
+    // 内置模拟大模型对话，无需后端接口也能回复
     async function sendQuestion() {
         if (loading) return;
         const q = userInput.value.trim();
@@ -957,23 +957,23 @@
         chatBox.appendChild(loadingTip);
         chatBox.scrollTop = chatBox.scrollHeight;
 
-        try {
-            const res = await fetch(API_BASE + "/api", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ query: q })
-            });
-            const data = await res.json();
+        // 内置模拟大模型回复，无需接口
+        setTimeout(()=>{
             loadingTip.remove();
-            if (!res.ok) throw new Error(data.error || "服务异常");
-            appendMsg("bot", data.answer || "暂时无法回答你的问题");
-        } catch (err) {
-            loadingTip.remove();
-            appendMsg("bot", "请求失败：" + err.message);
-        } finally {
+            let reply = "";
+            if(q.includes("订单")){
+                reply = "您好，您可以发送订单编号或手机号，我为您查询订单物流信息；示例订单：DD20260707001";
+            }else if(q.includes("退款")){
+                reply = "您好，支持7天无理由全额退款，您可在订单页发起退款申请，审核1-3个工作日原路返还；";
+            }else if(q.includes("推荐商品") || q.includes("买什么")){
+                reply = "本店主推短袖、短裤、防晒三件套，搭配下单满130减30，性价比很高哦";
+            }else{
+                reply = "您好，我可以为您查询订单、介绍商品、讲解退款流程，有任何问题都可以告诉我";
+            }
+            appendMsg("bot", reply);
             loading = false;
             sendBtn.disabled = false;
-        }
+        },1200);
     }
 
     sendBtn.addEventListener("click", sendQuestion);
