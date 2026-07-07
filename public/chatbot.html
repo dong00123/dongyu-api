@@ -527,18 +527,19 @@
 
     <!-- 右侧主页面 -->
     <div class="main-wrap">
-        <!-- 顶部导航 -->
+        <!-- 顶部导航【这里就是修改位置】 -->
         <div class="top-nav">
             <div class="nav-left">
                 <button>☰</button>
                 <button class="home-btn" onclick="switchPage('home')">首页</button>
             </div>
+            <!-- 这里全部改好：铃铛、问号、方框带弹窗，头像东，文字东玉 -->
             <div class="nav-right">
-                <div class="nav-icon">🔔<span class="badge">12</span></div>
-                <div class="nav-icon">❓</div>
-                <div class="nav-icon">⛶</div>
-                <div class="admin-user">A</div>
-                <span>admin</span>
+                <div class="nav-icon" onclick="openDetail('消息通知','这里展示系统通知、用户消息、待办提醒，当前未读12条')">🔔<span class="badge">12</span></div>
+                <div class="nav-icon" onclick="openDetail('帮助中心','系统操作教程、常见问题、客服支持入口')">❓</div>
+                <div class="nav-icon" onclick="openDetail('更多功能','快捷工具、导出、打印、全屏等附加功能')">⛶</div>
+                <div class="admin-user" onclick="openDetail('账号信息','账号：东玉\n角色：超级管理员\n可修改密码、个人资料、权限配置')">东</div>
+                <span>东玉</span>
             </div>
         </div>
         <!-- 多页面容器 -->
