@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ... 样式部分保持不变，省略 ... */
         * {
             margin: 0;
             padding: 0;
@@ -19,7 +20,6 @@
             background: #f5f7fa;
             color: #333;
         }
-        /* 左侧侧边栏 */
         .sidebar {
             width: 240px;
             background: #fff;
@@ -108,14 +108,12 @@
         .quick-btn:hover {
             background: #dce8ff;
         }
-        /* 右侧主区域 */
         .main-wrap {
             flex: 1;
             display: flex;
             flex-direction: column;
             height: 100vh;
         }
-        /* 顶部导航栏 */
         .top-nav {
             height: 60px;
             background: #fff;
@@ -178,7 +176,6 @@
             font-weight: 600;
             cursor: pointer;
         }
-        /* 页面容器：所有子页面切换 */
         .page-content {
             flex: 1;
             padding: 24px;
@@ -297,14 +294,13 @@
             color: #666;
             font-size: 14px;
         }
-        /* 对话聊天区域 */
         .chat-box {
             background: #fff;
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 16px;
             min-height: 220px;
-            max-height: 300px;
+            max-height: 350px;
             overflow-y: auto;
         }
         .msg-user {
@@ -317,7 +313,9 @@
             color: white;
             padding: 10px 14px;
             border-radius: 12px 12px 2px 12px;
-            max-width: 70%;
+            max-width: 80%;
+            text-align: left;
+            word-break: break-word;
         }
         .msg-bot {
             text-align: left;
@@ -329,13 +327,16 @@
             color: #333;
             padding: 10px 14px;
             border-radius: 12px 12px 12px 2px;
-            max-width: 70%;
+            max-width: 80%;
+            text-align: left;
+            word-break: break-word;
+            white-space: pre-wrap;
+            line-height: 1.8;
         }
         .loading-msg {
             color: #999;
             text-align: left;
         }
-        /* 底部输入框 */
         .chat-input-area {
             background: #fff;
             padding: 16px 24px;
@@ -374,7 +375,6 @@
             background: #94b8f0;
             cursor: not-allowed;
         }
-        /* 功能页面通用卡片 */
         .func-card {
             background: #fff;
             border-radius: 12px;
@@ -389,7 +389,6 @@
             color: #777;
             margin-bottom: 20px;
         }
-        /* 弹窗样式 */
         .modal-mask {
             position: fixed;
             top: 0;
@@ -405,6 +404,8 @@
         .modal-box {
             background: #fff;
             width: 520px;
+            max-height: 80vh;
+            overflow-y: auto;
             padding: 24px;
             border-radius: 12px;
         }
@@ -432,7 +433,6 @@
         .hot-tag-click:hover {
             background: #ddd;
         }
-        /* 标签通用样式 不放大字号 */
         .tag-blue {
             padding: 12px 24px;
             background: #edf4ff;
@@ -590,7 +590,7 @@
                         <div class="text">你好，我是智能客服机器人，请问你有什么问题？</div>
                     </div>
                 </div>
-                <!-- 弹窗容器（首页必须存在，否则JS报错阻塞发送） -->
+                <!-- 弹窗容器 -->
                 <div id="dataModal"></div>
             </div>
 
@@ -614,7 +614,7 @@
                         <span class="tag-green" onclick="openDetail('产品推荐','当前状态：已启用\n【产品推荐完整功能+虚构推荐商品示例】\n1. 推荐逻辑：基于用户浏览、咨询、下单记录做协同过滤匹配；\n2. 推送形式：对话末尾自动弹出3款同类商品，搭配优惠活动；\n2. 推送商品示例：\n① 纯棉冰丝短裤 售价59元 搭配T恤满130减30\n② 透气防晒冰袖 售价29.9元 两件8折\n③ 轻薄遮阳帽 售价39元 下单赠送冰袋\n3. 自定义配置：可设置推荐数量、过滤下架商品、限制低价商品；\n4. 业务价值：提升商品转化率，减少人工手动推销。')">产品推荐</span>
                         <span class="tag-green" onclick="openDetail('退款处理','当前状态：已启用\n【退款处理完整功能+虚构退款订单流程】\n1. 自助操作：用户可发起全额退款、部分退款、仅退运费；\n2. 校验规则：自动判断订单是否满足7天无理由、商品是否已拆封；\n3. 示例退款订单流程：\n订单号：DD20260701005 商品：休闲运动长裤\n用户申请：全额退款 退款原因：尺码偏大\n系统自动校验：满足7天无理由，自动推送退货地址\n商家审核：已同意退款\n预计到账：1-3个工作日原路退回微信支付\n4. 异常处理：拒绝退款时自动推送申诉入口，转人工复核。')">退款处理</span>
                     </div>
-                    <div id="dataModal"></div>
+                    <div id="dataModal2"></div>
                 </div>
             </div>
 
@@ -626,7 +626,7 @@
                     <p>后端接口：/api/knowledge</p>
                     <h3 style="margin-top:20px;margin-bottom:10px;">知识库数据列表</h3>
                     <div id="knowledgeList"></div>
-                    <div id="dataModal"></div>
+                    <div id="dataModal3"></div>
                 </div>
             </div>
 
@@ -637,7 +637,7 @@
                     <div class="func-desc">创建多个客服机器人、配置模型参数、开关自动回复</div>
                     <p>后端接口：/api/robot</p>
                     <div id="robotList"></div>
-                    <div id="dataModal"></div>
+                    <div id="dataModal4"></div>
                 </div>
             </div>
 
@@ -653,7 +653,7 @@
                         <span class="tag-light" onclick="openDetail('小程序','微信小程序内置客服，支持微信消息推送')">小程序</span>
                         <span class="tag-light" onclick="openDetail('APP内嵌客服','手机APP原生客服弹窗，支持图文消息')">APP内嵌客服</span>
                     </div>
-                    <div id="dataModal"></div>
+                    <div id="dataModal5"></div>
                 </div>
             </div>
 
@@ -665,7 +665,7 @@
                     <p>后端接口：/api/ticket</p>
                     <h3 style="margin-top:20px;margin-bottom:10px;">工单列表</h3>
                     <div id="ticketList"></div>
-                    <div id="dataModal"></div>
+                    <div id="dataModal6"></div>
                 </div>
             </div>
 
@@ -698,7 +698,7 @@
                             <span class="hot-tag-click" onclick="openDetail('热门问题：改地址','该问题本周被用户咨询27次，补充下单后改地址规则')" style="padding:8px 16px;background:#eee;border-radius:8px;">改地址</span>
                         </div>
                     </div>
-                    <div id="dataModal"></div>
+                    <div id="dataModal7"></div>
                 </div>
             </div>
 
@@ -709,7 +709,7 @@
                     <div class="func-desc">API密钥、模型地址、回复阈值、欢迎语全局配置</div>
                     <p>后端接口：/api/config</p>
                     <div id="sysConfigText"></div>
-                    <div id="dataModal"></div>
+                    <div id="dataModal8"></div>
                 </div>
             </div>
 
@@ -721,7 +721,7 @@
                     <p>后端接口：/api/role</p>
                     <h3 style="margin-top:20px;">系统角色列表</h3>
                     <div id="roleList"></div>
-                    <div id="dataModal"></div>
+                    <div id="dataModal9"></div>
                 </div>
             </div>
 
@@ -733,7 +733,7 @@
                     <p>后端接口：/api/log</p>
                     <h3 style="margin-top:20px;">操作日志记录</h3>
                     <div id="logList"></div>
-                    <div id="dataModal"></div>
+                    <div id="dataModal10"></div>
                 </div>
             </div>
         </div>
@@ -754,8 +754,12 @@
     const sendBtn = document.getElementById("sendBtn");
     let loading = false;
 
-    // 弹窗核心函数（修复穿透，换行正常显示）
+    // 弹窗核心函数 - 修复：使用固定ID避免冲突
     function openDetail(title, content) {
+        // 移除已有的弹窗
+        const oldModal = document.querySelector('.modal-mask');
+        if (oldModal) oldModal.remove();
+        
         const modalBox = `
             <div class="modal-mask" onclick="closeModal(event)">
                 <div class="modal-box" onclick="event.stopPropagation()">
@@ -765,83 +769,39 @@
                 </div>
             </div>
         `;
-        document.getElementById("dataModal").innerHTML = modalBox;
+        document.body.insertAdjacentHTML('beforeend', modalBox);
     }
     function closeModal(e) {
         if(e && e.target !== e.currentTarget) return;
-        document.getElementById("dataModal").innerHTML = "";
+        const modal = document.querySelector('.modal-mask');
+        if (modal) modal.remove();
     }
 
     // 页面切换函数
     function switchPage(pageName) {
-        // 清除所有active菜单
-        document.querySelectorAll(".menu-item").forEach(item=>{
-            item.classList.remove("active");
-        })
-        // 激活当前菜单
-        document.querySelector(`.menu-item[data-page="${pageName}"]`)?.classList.add("active");
-        // 隐藏所有页面
-        document.querySelectorAll(".page-item").forEach(p=>{
-            p.classList.remove("show");
-        })
-        // 显示目标页面
-        document.getElementById(`page-${pageName}`).classList.add("show");
-        // 切换页面自动加载接口数据渲染列表
+        document.querySelectorAll(".menu-item").forEach(item=>item.classList.remove("active"));
+        const targetMenuItem = document.querySelector(`.menu-item[data-page="${pageName}"]`);
+        if (targetMenuItem) targetMenuItem.classList.add("active");
+        document.querySelectorAll(".page-item").forEach(p=>p.classList.remove("show"));
+        const targetPage = document.getElementById(`page-${pageName}`);
+        if (targetPage) targetPage.classList.add("show");
         loadPageData(pageName);
     }
-    // 绑定左侧菜单点击
     document.querySelectorAll(".menu-item").forEach(item=>{
-        item.addEventListener("click",()=>{
-            const page = item.getAttribute("data-page");
-            switchPage(page);
-        })
+        item.addEventListener("click",()=>switchPage(item.getAttribute("data-page")));
     })
 
     // 模拟后端静态数据
     const mockData = {
-        funcMenu: {
-            list: ["订单查询","产品推荐","退款处理","知识查询","转人工"],
-            enable: ["订单查询","产品推荐","退款处理"]
-        },
-        channel: {
-            channels: ["网页客服","小程序","APP内嵌客服"]
-        },
-        role: {
-            roles: ["超级管理员","客服专员","只读查看员"]
-        },
-        log: {
-            logs: [
-                {content:"用户咨询退款流程",time:""},
-                {content:"管理员新增知识库条目",time:""}
-            ]
-        },
-        data: {
-            totalChat:1562,
-            passRate:"98.2%",
-            ticketTotal:42,
-            hotQuestion:["退款流程","发货时效","商品质保","改地址"]
-        },
-        knowledge: {
-            list: [
-                {question:"如何申请退款？",answer:"下单7天内未使用商品可申请全额退款，进入订单页点击退款按钮提交申请。"}
-            ]
-        },
-        robot: {
-            robots: [
-                {name:"售前客服机器人",model:"gpt-4o",status:true,welcome:"您好，欢迎咨询商品相关问题！"}
-            ]
-        },
-        ticket: {
-            list: [
-                {ticketId:"TK20260707001",user:"用户001",type:"退款纠纷",status:"待处理"}
-            ]
-        },
-        sysConfig: {
-            welcomeText:"您好，有什么可以帮您？",
-            modelName:"GPT-4o",
-            similarityThreshold:0.75,
-            transferManualSwitch:true
-        }
+        funcMenu: {list: ["订单查询","产品推荐","退款处理","知识查询","转人工"], enable: ["订单查询","产品推荐","退款处理"]},
+        channel: {channels: ["网页客服","小程序","APP内嵌客服"]},
+        role: {roles: ["超级管理员","客服专员","只读查看员"]},
+        log: {logs: [{content:"用户咨询退款流程",time:""},{content:"管理员新增知识库条目",time:""}]},
+        data: {totalChat:1562, passRate:"98.2%", ticketTotal:42, hotQuestion:["退款流程","发货时效","商品质保","改地址"]},
+        knowledge: {list: [{question:"如何申请退款？",answer:"下单7天内未使用商品可申请全额退款，进入订单页点击退款按钮提交申请。"}]},
+        robot: {robots: [{name:"售前客服机器人",model:"gpt-4o",status:true,welcome:"您好，欢迎咨询商品相关问题！"}]},
+        ticket: {list: [{ticketId:"TK20260707001",user:"用户001",type:"退款纠纷",status:"待处理"}]},
+        sysConfig: {welcomeText:"您好，有什么可以帮您？", modelName:"GPT-4o", similarityThreshold:0.75, transferManualSwitch:true}
     };
 
     // 各页面渲染逻辑
@@ -850,85 +810,68 @@
             case "knowledge":
                 let kHtml = "";
                 mockData.knowledge.list.forEach(item=>{
-                    kHtml += `<div style="border:1px solid #eee;padding:12px;border-radius:8px;margin-bottom:10px;">
-                        <div><strong>问题：</strong>${item.question}</div>
-                        <div style="margin-top:6px;color:#555;"><strong>回答：</strong>${item.answer}</div>
-                    </div>`;
+                    kHtml += `<div style="border:1px solid #eee;padding:12px;border-radius:8px;margin-bottom:10px;"><div><strong>问题：</strong>${item.question}</div><div style="margin-top:6px;color:#555;"><strong>回答：</strong>${item.answer}</div></div>`;
                 });
-                document.getElementById("knowledgeList").innerHTML = kHtml;
+                const kList = document.getElementById("knowledgeList");
+                if (kList) kList.innerHTML = kHtml;
                 break;
             case "robotMgr":
                 let rHtml = "";
                 mockData.robot.robots.forEach(r=>{
-                    rHtml += `<div style="border:1px solid #eee;padding:14px;border-radius:8px;margin-bottom:10px;">
-                        <div><strong>机器人名称：</strong>${r.name}</div>
-                        <div><strong>使用模型：</strong>${r.model}</div>
-                        <div><strong>运行状态：</strong>${r.status ? "✅ 正常启用" : "❌ 已关闭"}</div>
-                        <div><strong>欢迎话术：</strong>${r.welcome}</div>
-                    </div>`;
+                    rHtml += `<div style="border:1px solid #eee;padding:14px;border-radius:8px;margin-bottom:10px;"><div><strong>机器人名称：</strong>${r.name}</div><div><strong>使用模型：</strong>${r.model}</div><div><strong>运行状态：</strong>${r.status ? "✅ 正常启用" : "❌ 已关闭"}</div><div><strong>欢迎话术：</strong>${r.welcome}</div></div>`;
                 });
-                document.getElementById("robotList").innerHTML = rHtml;
+                const rList = document.getElementById("robotList");
+                if (rList) rList.innerHTML = rHtml;
                 break;
             case "ticket":
                 let tHtml = "";
                 mockData.ticket.list.forEach(t=>{
-                    tHtml += `<div style="border:1px solid #eee;padding:12px;border-radius:8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
-                        <div>
-                            <div>工单号：${t.ticketId}</div>
-                            <div>咨询用户：${t.user}</div>
-                            <div>工单类型：${t.type}</div>
-                        </div>
-                        <div style="font-weight:500;color:${t.status==='待处理'?'#f53f3f':'#009944'}">${t.status}</div>
-                    </div>`;
+                    tHtml += `<div style="border:1px solid #eee;padding:12px;border-radius:8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;"><div><div>工单号：${t.ticketId}</div><div>咨询用户：${t.user}</div><div>工单类型：${t.type}</div></div><div style="font-weight:500;color:${t.status==='待处理'?'#f53f3f':'#009944'}">${t.status}</div></div>`;
                 });
-                document.getElementById("ticketList").innerHTML = tHtml;
+                const tList = document.getElementById("ticketList");
+                if (tList) tList.innerHTML = tHtml;
                 break;
             case "sysConfig":
                 const cfg = mockData.sysConfig;
-                document.getElementById("sysConfigText").innerHTML = `
-                    <div style="margin-top:24px;line-height:2.2;font-size:15px;">
-                        <div><strong>机器人欢迎语：</strong>${cfg.welcomeText}</div>
-                        <div><strong>当前使用模型：</strong>${cfg.modelName}</div>
-                        <div><strong>知识库匹配阈值：</strong>${cfg.similarityThreshold}</div>
-                        <div><strong>自动转人工开关：</strong>${cfg.transferManualSwitch ? "已开启" : "已关闭"}</div>
-                    </div>`;
+                const sysText = document.getElementById("sysConfigText");
+                if (sysText) sysText.innerHTML = `<div style="margin-top:24px;line-height:2.2;font-size:15px;"><div><strong>机器人欢迎语：</strong>${cfg.welcomeText}</div><div><strong>当前使用模型：</strong>${cfg.modelName}</div><div><strong>知识库匹配阈值：</strong>${cfg.similarityThreshold}</div><div><strong>自动转人工开关：</strong>${cfg.transferManualSwitch ? "已开启" : "已关闭"}</div></div>`;
                 break;
             case "role":
                 let roleHtml = "";
                 mockData.role.roles.forEach(item=>{
                     roleHtml += `<div class="list-click-item" onclick="openDetail('${item}','${getRoleDesc(item)}')" style="padding:10px 0;border-bottom:1px solid #eee;">${item}</div>`;
                 });
-                document.getElementById("roleList").innerHTML = roleHtml;
+                const rList2 = document.getElementById("roleList");
+                if (rList2) rList2.innerHTML = roleHtml;
                 break;
             case "log":
                 let logHtml = "";
                 mockData.log.logs.forEach(l=>{
                     logHtml += `<div class="list-click-item" onclick="openDetail('${l.content}','${getLogDesc(l.content)}')" style="padding:10px 0;border-bottom:1px solid #eee;">${l.content}</div>`;
                 });
-                document.getElementById("logList").innerHTML = logHtml;
+                const lList = document.getElementById("logList");
+                if (lList) lList.innerHTML = logHtml;
                 break;
         }
     }
-    // 角色弹窗描述
     function getRoleDesc(name) {
         if(name === "超级管理员") return "拥有系统全部权限，可修改配置、管理账号、导出全部数据";
         if(name === "客服专员") return "仅可接待用户、处理工单、查看对话数据，无法修改系统配置";
         return "仅查看数据报表、对话记录，无任何编辑操作权限";
     }
-    // 日志弹窗描述
     function getLogDesc(text) {
         if(text === "用户咨询退款流程") return "2026-07-07 10:22 用户发起退款相关咨询，机器人自动回复退款规则";
         return "2026-07-07 09:15 管理员登录后台新增商品质保问答知识库";
     }
 
-    // 页面初始化加载首页数据
     loadPageData("home");
-
-    // 快捷提问按钮填充输入框并切首页
     function fastAsk(text) {
         userInput.value = text;
         userInput.focus();
+        // 自动切换到首页，确保能看到聊天框
         switchPage("home");
+        // 自动发送
+        setTimeout(() => sendQuestion(), 300);
     }
 
     // 聊天消息渲染
@@ -939,8 +882,6 @@
         chatBox.appendChild(div);
         chatBox.scrollTop = chatBox.scrollHeight;
     }
-
-    // XSS转义
     function escapeHtml(str) {
         if (!str) return "";
         let s = str.replace(/&/g,"&amp;");
@@ -949,30 +890,10 @@
         return s;
     }
 
-    // 内置模拟大模型对话，无需后端接口也能回复
-async function sendQuestion() {
-    if (loading) return;
-    const q = userInput.value.trim();
-    if (!q) return;
+    // ========== 核心发送函数 - 修复手机号匹配 ==========
+    // 完整的9条订单数据
+    const ORDER_DATA = `根据手机号为您查询到全部9笔历史订单：
 
-    appendMsg("user", q);
-    userInput.value = "";
-    loading = true;
-    sendBtn.disabled = true;
-
-    const loadingTip = document.createElement("div");
-    loadingTip.className = "loading-msg";
-    loadingTip.innerText = "机器人思考中...";
-    chatBox.appendChild(loadingTip);
-    chatBox.scrollTop = chatBox.scrollHeight;
-
-    setTimeout(()=>{
-        loadingTip.remove();
-        let reply = "";
-        // 提取文本里所有11位手机号，不限制前后文字
-        const phoneMatch = q.match(/1[3-9]\d{10}/);
-        if(phoneMatch){
-            reply = `根据手机号${phoneMatch[0]}为您查询到全部9笔历史订单：
 【订单1 | 毛先生】
 订单编号：DD20260707001
 购买商品：夏季纯棉短袖T恤（白色L码）
@@ -1035,25 +956,69 @@ async function sendQuestion() {
 实付金额：79元 | 下单时间：2026-05-28 10:05
 物流单号：SF1234567733 | 当前状态：已签收
 售后状态：全额退款完成，资金已原路返还`;
-        }else if(q.includes("订单")){
-            reply = "您好，您可以发送完整11位手机号，我为您查询名下全部9条订单物流信息；示例手机号：15701397040";
-        }else if(q.includes("退款")){
-            reply = "您好，支持7天无理由全额退款，您发送手机号，我可以查询对应订单退款入口；";
-        }else if(q.includes("推荐商品") || q.includes("买什么")){
-            reply = "本店主推短袖、短裤、防晒三件套，搭配下单满130减30，性价比很高哦";
-        }else{
-            reply = "您好，我可以为您查询订单、介绍商品、讲解退款流程，您直接输入手机号即可查询全部9笔历史订单";
-        }
-        appendMsg("bot", reply);
-        loading = false;
-        sendBtn.disabled = false;
-    },1200);
-}
 
-    // 绑定发送按钮点击、回车快捷键
+    async function sendQuestion() {
+        if (loading) return;
+        const q = userInput.value.trim();
+        if (!q) return;
+
+        // 确保在首页才能看到聊天
+        const homePage = document.getElementById('page-home');
+        if (!homePage.classList.contains('show')) {
+            switchPage('home');
+            // 等待页面切换完成
+            await new Promise(r => setTimeout(r, 100));
+        }
+
+        appendMsg("user", q);
+        userInput.value = "";
+        loading = true;
+        sendBtn.disabled = true;
+
+        const loadingTip = document.createElement("div");
+        loadingTip.className = "loading-msg";
+        loadingTip.innerText = "🔍 正在查询订单，请稍候...";
+        chatBox.appendChild(loadingTip);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        setTimeout(()=>{
+            loadingTip.remove();
+            let reply = "";
+            
+            // 提取手机号：支持纯数字、带空格、带横杠、带括号等格式
+            // 匹配 1 开头，第二位 3-9，后面 9 位数字
+            const phoneMatch = q.match(/1[3-9]\s*[-]?\s*\d\s*[-]?\s*\d\s*[-]?\s*\d\s*[-]?\s*\d\s*[-]?\s*\d\s*[-]?\s*\d\s*[-]?\s*\d\s*[-]?\s*\d\s*[-]?\s*\d/);
+            // 或者更简洁的匹配：去掉空格和横杠后匹配
+            const cleanQ = q.replace(/[\s\-（）()]/g, '');
+            const cleanPhoneMatch = cleanQ.match(/1[3-9]\d{10}/);
+            
+            // 判断是否包含手机号（两种方式任一匹配到即可）
+            const matchedPhone = phoneMatch ? phoneMatch[0].replace(/[\s\-（）()]/g, '') : 
+                                 cleanPhoneMatch ? cleanPhoneMatch[0] : null;
+
+            if (matchedPhone && matchedPhone.length === 11) {
+                // ✅ 匹配到手机号 → 展示9条完整订单
+                reply = `🔍 根据手机号 **${matchedPhone}** 为您查询到全部9笔历史订单：\n\n${ORDER_DATA}`;
+            } else if (q.includes("订单") || q.includes("查询") || q.includes("物流") || q.includes("快递")) {
+                // 包含订单相关关键词但没识别到手机号
+                reply = "📱 您好，请发送完整11位手机号，我为您查询名下全部9条订单物流信息；\n示例手机号：15701397040";
+            } else if (q.includes("退款")) {
+                reply = "💰 您好，支持7天无理由全额退款，您发送手机号，我可以查询对应订单退款入口；";
+            } else if (q.includes("推荐商品") || q.includes("买什么") || q.includes("推荐")) {
+                reply = "🛍️ 本店主推短袖、短裤、防晒三件套，搭配下单满130减30，性价比很高哦！\n您也可以发送手机号，我帮您查询历史购买记录做精准推荐。";
+            } else {
+                reply = "👋 您好，我可以为您查询订单、介绍商品、讲解退款流程，您直接输入手机号即可查询全部9笔历史订单。\n示例手机号：15701397040";
+            }
+            appendMsg("bot", reply);
+            loading = false;
+            sendBtn.disabled = false;
+        }, 1500);
+    }
+
+    // 绑定点击+回车
     sendBtn.addEventListener("click", sendQuestion);
-    userInput.addEventListener("keydown", e => {
-        if (e.key === "Enter") sendQuestion();
+    userInput.addEventListener("keydown", e=>{
+        if(e.key === "Enter") sendQuestion();
     });
 </script>
 </body>
