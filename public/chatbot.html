@@ -432,33 +432,51 @@
         .hot-tag-click:hover {
             background: #ddd;
         }
-        /* 功能标签通用样式 */
+        /* 标签通用样式 不放大字号 */
         .tag-blue {
             padding: 12px 24px;
             background: #edf4ff;
             color: #4080ff;
             border-radius: 12px;
-            font-size: 32px;
+            font-size: 16px;
             display: inline-block;
             margin: 8px;
+            cursor: pointer;
+        }
+        .tag-blue:hover {
+            opacity: 0.85;
         }
         .tag-green {
             padding: 12px 24px;
             background: #52c462;
             color: #fff;
             border-radius: 12px;
-            font-size: 32px;
+            font-size: 16px;
             display: inline-block;
             margin: 8px;
+            cursor: pointer;
+        }
+        .tag-green:hover {
+            opacity: 0.85;
         }
         .tag-light {
             padding: 12px 24px;
             background: #edf4ff;
             color: #333;
             border-radius: 12px;
-            font-size: 32px;
+            font-size: 16px;
             display: inline-block;
             margin: 8px;
+            cursor: pointer;
+        }
+        .tag-light:hover {
+            opacity: 0.85;
+        }
+        .list-click-item {
+            cursor: pointer;
+        }
+        .list-click-item:hover {
+            background: #f5f7fa;
         }
     </style>
 </head>
@@ -580,19 +598,19 @@
                     <h2>⚙️ 功能菜单管理</h2>
                     <div class="func-desc">配置机器人支持的业务功能：订单查询、退款处理、产品推荐、人工转接等</div>
                     <p>后端接口：/api/funcMenu</p>
-                    <h3 style="margin-top:30px;font-size:36px;">全部功能列表</h3>
-                    <div style="margin:20px 0;">
-                        <span class="tag-blue">订单查询</span>
-                        <span class="tag-blue">产品推荐</span>
-                        <span class="tag-blue">退款处理</span>
-                        <span class="tag-blue">知识查询</span>
-                        <span class="tag-blue">转人工</span>
+                    <h3 style="margin-top:20px;">全部功能列表</h3>
+                    <div style="margin:10px 0;">
+                        <span class="tag-blue" onclick="openDetail('订单查询','该功能支持用户查询全部历史订单、物流状态、售后记录')">订单查询</span>
+                        <span class="tag-blue" onclick="openDetail('产品推荐','根据用户浏览记录自动匹配相关商品推送')">产品推荐</span>
+                        <span class="tag-blue" onclick="openDetail('退款处理','自助发起退款、审核进度查询、金额原路退回')">退款处理</span>
+                        <span class="tag-blue" onclick="openDetail('知识查询','检索知识库自动回复常规咨询问题')">知识查询</span>
+                        <span class="tag-blue" onclick="openDetail('转人工','机器人无法解答时自动转接真人客服接待')">转人工</span>
                     </div>
-                    <h3 style="margin-top:30px;font-size:36px;">已启用功能</h3>
-                    <div style="margin:20px 0;">
-                        <span class="tag-green">订单查询</span>
-                        <span class="tag-green">产品推荐</span>
-                        <span class="tag-green">退款处理</span>
+                    <h3 style="margin-top:20px;">已启用功能</h3>
+                    <div style="margin:10px 0;">
+                        <span class="tag-green" onclick="openDetail('订单查询','当前已启用，用户可正常查询订单物流信息')">订单查询</span>
+                        <span class="tag-green" onclick="openDetail('产品推荐','当前已启用，对话内自动推荐匹配商品')">产品推荐</span>
+                        <span class="tag-green" onclick="openDetail('退款处理','当前已启用，支持用户自助申请退款')">退款处理</span>
                     </div>
                 </div>
             </div>
@@ -640,11 +658,11 @@
                     <h2>📡 渠道管理</h2>
                     <div class="func-desc">对接网站、小程序、APP等客服接入渠道</div>
                     <p>后端接口：/api/channel</p>
-                    <h3 style="margin-top:30px;font-size:36px;">已接入渠道</h3>
-                    <div style="margin:20px 0;">
-                        <span class="tag-light">网页客服</span>
-                        <span class="tag-light">小程序</span>
-                        <span class="tag-light">APP内嵌客服</span>
+                    <h3 style="margin-top:20px;">已接入渠道</h3>
+                    <div style="margin:10px 0;">
+                        <span class="tag-light" onclick="openDetail('网页客服','官网内嵌客服窗口，访客无需登录即可发起对话')">网页客服</span>
+                        <span class="tag-light" onclick="openDetail('小程序','微信小程序内置客服，支持微信消息推送')">小程序</span>
+                        <span class="tag-light" onclick="openDetail('APP内嵌客服','手机APP原生客服弹窗，支持图文消息')">APP内嵌客服</span>
                     </div>
                 </div>
             </div>
@@ -678,23 +696,26 @@
                     <div class="func-desc">对话量、问答准确率、工单数量、用户咨询热点统计图表</div>
                     <p>后端接口：/api/data</p>
                     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:24px;text-align:center;">
-                        <div class="stat-card-click" onclick="openDetail('总对话量', '当前全部用户对话总数：${dataData.totalChat} 条，今日新增128条，环比上涨8.6%')" style="padding:18px;background:#f0f4ff;border-radius:10px;">
-                            <div style="font-size:26px;font-weight:bold;">${dataData.totalChat}</div>
+                        <div class="stat-card-click" onclick="openDetail('总对话量', '当前全部用户对话总数：1562 条，今日新增128条，环比上涨8.6%')" style="padding:18px;background:#f0f4ff;border-radius:10px;">
+                            <div style="font-size:26px;font-weight:bold;">1562</div>
                             <div style="color:#666;margin-top:6px;">总对话量</div>
                         </div>
-                        <div class="stat-card-click" onclick="openDetail('问答通过率', '机器人自动回答正确率：${dataData.passRate}，未命中知识会自动转人工工单')" style="padding:18px;background:#e6f9e8;border-radius:10px;">
-                            <div style="font-size:26px;font-weight:bold;color:#009944;">${dataData.passRate}</div>
+                        <div class="stat-card-click" onclick="openDetail('问答通过率', '机器人自动回答正确率：98.2%，未命中知识会自动转人工工单')" style="padding:18px;background:#e6f9e8;border-radius:10px;">
+                            <div style="font-size:26px;font-weight:bold;color:#009944;">98.2%</div>
                             <div style="color:#666;margin-top:6px;">问答通过率</div>
                         </div>
-                        <div class="stat-card-click" onclick="openDetail('总工单数量', '人工介入工单合计：${dataData.ticketTotal} 单，待处理工单6单，已完成36单')" style="padding:18px;background:#fff3e8;border-radius:10px;">
-                            <div style="font-size:26px;font-weight:bold;color:#f77d36;">${dataData.ticketTotal}</div>
+                        <div class="stat-card-click" onclick="openDetail('总工单数量', '人工介入工单合计：42 单，待处理工单6单，已完成36单')" style="padding:18px;background:#fff3e8;border-radius:10px;">
+                            <div style="font-size:26px;font-weight:bold;color:#f77d36;">42</div>
                             <div style="color:#666;margin-top:6px;">总工单数量</div>
                         </div>
                     </div>
                     <div style="margin-top:24px;">
-                        <h3 style="font-size:24px;">热门咨询问题</h3>
+                        <h3>热门咨询问题</h3>
                         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
-                            ${dataData.hotQuestion.map(h=>`<span class="hot-tag-click" onclick="openDetail('热门问题：${h}', '该问题本周被用户咨询46次，可前往【知识管理】完善对应问答内容')" style="padding:8px 16px;background:#eee;border-radius:8px;font-size:22px;">${h}</span>`).join('')}
+                            <span class="hot-tag-click" onclick="openDetail('热门问题：退款流程','该问题本周被用户咨询46次，可前往【知识管理】完善对应问答内容')" style="padding:8px 16px;background:#eee;border-radius:8px;">退款流程</span>
+                            <span class="hot-tag-click" onclick="openDetail('热门问题：发货时效','该问题本周被用户咨询39次，重点补充物流时效说明')" style="padding:8px 16px;background:#eee;border-radius:8px;">发货时效</span>
+                            <span class="hot-tag-click" onclick="openDetail('热门问题：商品质保','该问题本周被用户咨询32次，完善保修期限问答')" style="padding:8px 16px;background:#eee;border-radius:8px;">商品质保</span>
+                            <span class="hot-tag-click" onclick="openDetail('热门问题：改地址','该问题本周被用户咨询27次，补充下单后改地址规则')" style="padding:8px 16px;background:#eee;border-radius:8px;">改地址</span>
                         </div>
                     </div>
                     <div id="dataModal"></div>
@@ -722,11 +743,11 @@
                     <h2>👥 角色权限管理</h2>
                     <div class="func-desc">管理员、客服、只读账号权限分配</div>
                     <p>后端接口：/api/role</p>
-                    <h3 style="margin-top:30px;font-size:36px;">系统角色列表</h3>
-                    <div style="margin-top:20px;font-size:28px;line-height:2.5;">
-                        <div style="border-bottom:1px solid #eee;padding:8px 0;">超级管理员</div>
-                        <div style="border-bottom:1px solid #eee;padding:8px 0;">客服专员</div>
-                        <div style="border-bottom:1px solid #eee;padding:8px 0;">只读查看员</div>
+                    <h3 style="margin-top:20px;">系统角色列表</h3>
+                    <div style="margin-top:10px;">
+                        <div class="list-click-item" onclick="openDetail('超级管理员','拥有系统全部权限，可修改配置、管理账号、导出全部数据')" style="padding:10px 0;border-bottom:1px solid #eee;">超级管理员</div>
+                        <div class="list-click-item" onclick="openDetail('客服专员','仅可接待用户、处理工单、查看对话数据，无法修改系统配置')" style="padding:10px 0;border-bottom:1px solid #eee;">客服专员</div>
+                        <div class="list-click-item" onclick="openDetail('只读查看员','仅查看数据报表、对话记录，无任何编辑操作权限')" style="padding:10px 0;border-bottom:1px solid #eee;">只读查看员</div>
                     </div>
                 </div>
             </div>
@@ -737,10 +758,10 @@
                     <h2>📜 日志中心</h2>
                     <div class="func-desc">用户对话日志、操作日志、报错日志查询导出</div>
                     <p>后端接口：/api/log</p>
-                    <h3 style="margin-top:30px;font-size:36px;">操作日志记录</h3>
-                    <div style="margin-top:20px;font-size:26px;line-height:2.2;">
-                        <div style="border-bottom:1px solid #eee;padding:8px 0;">用户咨询退款流程</div>
-                        <div style="border-bottom:1px solid #eee;padding:8px 0;">管理员新增知识库条目</div>
+                    <h3 style="margin-top:20px;">操作日志记录</h3>
+                    <div style="margin-top:10px;">
+                        <div class="list-click-item" onclick="openDetail('用户咨询退款流程','2026-07-07 10:22 用户发起退款相关咨询，机器人自动回复退款规则')" style="padding:10px 0;border-bottom:1px solid #eee;">用户咨询退款流程</div>
+                        <div class="list-click-item" onclick="openDetail('管理员新增知识库条目','2026-07-07 09:15 管理员登录后台新增商品质保问答知识库')" style="padding:10px 0;border-bottom:1px solid #eee;">管理员新增知识库条目</div>
                     </div>
                 </div>
             </div>
@@ -861,13 +882,19 @@
                     <h2>⚙️ 功能菜单管理</h2>
                     <div class="func-desc">配置机器人支持的业务功能：订单查询、退款处理、产品推荐、人工转接等</div>
                     <p>后端接口：/api/funcMenu</p>
-                    <h3 style="margin-top:30px;font-size:36px;">全部功能列表</h3>
-                    <div style="margin:20px 0;">
-                        ${funcData.list.map(item=>`<span class="tag-blue">${item}</span>`).join('')}
+                    <h3 style="margin-top:20px;">全部功能列表</h3>
+                    <div style="margin:10px 0;">
+                        <span class="tag-blue" onclick="openDetail('订单查询','该功能支持用户查询全部历史订单、物流状态、售后记录')">订单查询</span>
+                        <span class="tag-blue" onclick="openDetail('产品推荐','根据用户浏览记录自动匹配相关商品推送')">产品推荐</span>
+                        <span class="tag-blue" onclick="openDetail('退款处理','自助发起退款、审核进度查询、金额原路退回')">退款处理</span>
+                        <span class="tag-blue" onclick="openDetail('知识查询','检索知识库自动回复常规咨询问题')">知识查询</span>
+                        <span class="tag-blue" onclick="openDetail('转人工','机器人无法解答时自动转接真人客服接待')">转人工</span>
                     </div>
-                    <h3 style="margin-top:30px;font-size:36px;">已启用功能</h3>
-                    <div style="margin:20px 0;">
-                        ${funcData.enable.map(item=>`<span class="tag-green">${item}</span>`).join('')}
+                    <h3 style="margin-top:20px;">已启用功能</h3>
+                    <div style="margin:10px 0;">
+                        <span class="tag-green" onclick="openDetail('订单查询','当前已启用，用户可正常查询订单物流信息')">订单查询</span>
+                        <span class="tag-green" onclick="openDetail('产品推荐','当前已启用，对话内自动推荐匹配商品')">产品推荐</span>
+                        <span class="tag-green" onclick="openDetail('退款处理','当前已启用，支持用户自助申请退款')">退款处理</span>
                     </div>
                 `;
                 break;
@@ -912,9 +939,11 @@
                     <h2>📡 渠道管理</h2>
                     <div class="func-desc">对接网站、小程序、APP等客服接入渠道</div>
                     <p>后端接口：/api/channel</p>
-                    <h3 style="margin-top:30px;font-size:36px;">已接入渠道</h3>
-                    <div style="margin:20px 0;">
-                        ${chData.channels.map(c=>`<span class="tag-light">${c}</span>`).join('')}
+                    <h3 style="margin-top:20px;">已接入渠道</h3>
+                    <div style="margin:10px 0;">
+                        <span class="tag-light" onclick="openDetail('网页客服','官网内嵌客服窗口，访客无需登录即可发起对话')">网页客服</span>
+                        <span class="tag-light" onclick="openDetail('小程序','微信小程序内置客服，支持微信消息推送')">小程序</span>
+                        <span class="tag-light" onclick="openDetail('APP内嵌客服','手机APP原生客服弹窗，支持图文消息')">APP内嵌客服</span>
                     </div>
                 `;
                 break;
@@ -946,23 +975,26 @@
                     <div class="func-desc">对话量、问答准确率、工单数量、用户咨询热点统计图表</div>
                     <p>后端接口：/api/data</p>
                     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:24px;text-align:center;">
-                        <div class="stat-card-click" onclick="openDetail('总对话量', '当前全部用户对话总数：${dataData.totalChat} 条，今日新增128条，环比上涨8.6%')" style="padding:18px;background:#f0f4ff;border-radius:10px;">
-                            <div style="font-size:26px;font-weight:bold;">${dataData.totalChat}</div>
+                        <div class="stat-card-click" onclick="openDetail('总对话量', '当前全部用户对话总数：1562 条，今日新增128条，环比上涨8.6%')" style="padding:18px;background:#f0f4ff;border-radius:10px;">
+                            <div style="font-size:26px;font-weight:bold;">1562</div>
                             <div style="color:#666;margin-top:6px;">总对话量</div>
                         </div>
-                        <div class="stat-card-click" onclick="openDetail('问答通过率', '机器人自动回答正确率：${dataData.passRate}，未命中知识会自动转人工工单')" style="padding:18px;background:#e6f9e8;border-radius:10px;">
-                            <div style="font-size:26px;font-weight:bold;color:#009944;">${dataData.passRate}</div>
+                        <div class="stat-card-click" onclick="openDetail('问答通过率', '机器人自动回答正确率：98.2%，未命中知识会自动转人工工单')" style="padding:18px;background:#e6f9e8;border-radius:10px;">
+                            <div style="font-size:26px;font-weight:bold;color:#009944;">98.2%</div>
                             <div style="color:#666;margin-top:6px;">问答通过率</div>
                         </div>
-                        <div class="stat-card-click" onclick="openDetail('总工单数量', '人工介入工单合计：${dataData.ticketTotal} 单，待处理工单6单，已完成36单')" style="padding:18px;background:#fff3e8;border-radius:10px;">
-                            <div style="font-size:26px;font-weight:bold;color:#f77d36;">${dataData.ticketTotal}</div>
+                        <div class="stat-card-click" onclick="openDetail('总工单数量', '人工介入工单合计：42 单，待处理工单6单，已完成36单')" style="padding:18px;background:#fff3e8;border-radius:10px;">
+                            <div style="font-size:26px;font-weight:bold;color:#f77d36;">42</div>
                             <div style="color:#666;margin-top:6px;">总工单数量</div>
                         </div>
                     </div>
                     <div style="margin-top:24px;">
-                        <h3 style="font-size:24px;">热门咨询问题</h3>
+                        <h3>热门咨询问题</h3>
                         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
-                            ${dataData.hotQuestion.map(h=>`<span class="hot-tag-click" onclick="openDetail('热门问题：${h}', '该问题本周被用户咨询46次，可前往【知识管理】完善对应问答内容')" style="padding:8px 16px;background:#eee;border-radius:8px;font-size:22px;">${h}</span>`).join('')}
+                            <span class="hot-tag-click" onclick="openDetail('热门问题：退款流程','该问题本周被用户咨询46次，可前往【知识管理】完善对应问答内容')" style="padding:8px 16px;background:#eee;border-radius:8px;">退款流程</span>
+                            <span class="hot-tag-click" onclick="openDetail('热门问题：发货时效','该问题本周被用户咨询39次，重点补充物流时效说明')" style="padding:8px 16px;background:#eee;border-radius:8px;">发货时效</span>
+                            <span class="hot-tag-click" onclick="openDetail('热门问题：商品质保','该问题本周被用户咨询32次，完善保修期限问答')" style="padding:8px 16px;background:#eee;border-radius:8px;">商品质保</span>
+                            <span class="hot-tag-click" onclick="openDetail('热门问题：改地址','该问题本周被用户咨询27次，补充下单后改地址规则')" style="padding:8px 16px;background:#eee;border-radius:8px;">改地址</span>
                         </div>
                     </div>
                     <div id="dataModal"></div>
@@ -988,9 +1020,11 @@
                     <h2>👥 角色权限管理</h2>
                     <div class="func-desc">管理员、客服、只读账号权限分配</div>
                     <p>后端接口：/api/role</p>
-                    <h3 style="margin-top:30px;font-size:36px;">系统角色列表</h3>
-                    <div style="margin-top:20px;font-size:28px;line-height:2.5;">
-                        ${roleData.roles.map(r=>`<div style="border-bottom:1px solid #eee;padding:8px 0;">${r}</div>`).join('')}
+                    <h3 style="margin-top:20px;">系统角色列表</h3>
+                    <div style="margin-top:10px;">
+                        <div class="list-click-item" onclick="openDetail('超级管理员','拥有系统全部权限，可修改配置、管理账号、导出全部数据')" style="padding:10px 0;border-bottom:1px solid #eee;">超级管理员</div>
+                        <div class="list-click-item" onclick="openDetail('客服专员','仅可接待用户、处理工单、查看对话数据，无法修改系统配置')" style="padding:10px 0;border-bottom:1px solid #eee;">客服专员</div>
+                        <div class="list-click-item" onclick="openDetail('只读查看员','仅查看数据报表、对话记录，无任何编辑操作权限')" style="padding:10px 0;border-bottom:1px solid #eee;">只读查看员</div>
                     </div>
                 `;
                 break;
@@ -1000,83 +1034,4 @@
                     <h2>📜 日志中心</h2>
                     <div class="func-desc">用户对话日志、操作日志、报错日志查询导出</div>
                     <p>后端接口：/api/log</p>
-                    <h3 style="margin-top:30px;font-size:36px;">操作日志记录</h3>
-                    <div style="margin-top:20px;font-size:26px;line-height:2.2;">
-                        ${logData.logs.map(l=>`<div style="border-bottom:1px solid #eee;padding:8px 0;">${l.content}</div>`).join('')}
-                    </div>
-                `;
-                break;
-        }
-    }
-
-    // 页面初始化加载首页数据
-    loadPageData("home");
-
-    // 快捷提问按钮填充输入框并切回聊天页
-    function fastAsk(text) {
-        userInput.value = text;
-        userInput.focus();
-        switchPage("home");
-    }
-
-    // 聊天消息渲染
-    function appendMsg(type, text) {
-        const div = document.createElement("div");
-        div.className = type === "user" ? "msg-user" : "msg-bot";
-        div.innerHTML = `<div class="text">${escapeHtml(text)}</div>`;
-        chatBox.appendChild(div);
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    // XSS字符转义
-    function escapeHtml(str) {
-        if (!str) return "";
-        let s = str.replace(/&/g,"&amp;");
-        s = s.replace(/</g,"&lt;");
-        s = s.replace(/>/g,"&gt;");
-        return s;
-    }
-
-    // 发送对话请求
-    async function sendQuestion() {
-        if (loading) return;
-        const q = userInput.value.trim();
-        if (!q) return;
-
-        appendMsg("user", q);
-        userInput.value = "";
-        loading = true;
-        sendBtn.disabled = true;
-
-        const loadingTip = document.createElement("div");
-        loadingTip.className = "loading-msg";
-        loadingTip.innerText = "机器人思考中...";
-        chatBox.appendChild(loadingTip);
-        chatBox.scrollTop = chatBox.scrollHeight;
-
-        try {
-            const res = await fetch(API_BASE + "/api", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ query: q })
-            });
-            const data = await res.json();
-            loadingTip.remove();
-            if (!res.ok) throw new Error(data.error || "服务异常");
-            appendMsg("bot", data.answer || "暂时无法回答你的问题");
-        } catch (err) {
-            loadingTip.remove();
-            appendMsg("bot", "请求失败：" + err.message);
-        } finally {
-            loading = false;
-            sendBtn.disabled = false;
-        }
-    }
-
-    sendBtn.addEventListener("click", sendQuestion);
-    userInput.addEventListener("keydown", e => {
-        if (e.key === "Enter") sendQuestion();
-    });
-</script>
-</body>
-</html>
+                    <h3 style="margin
