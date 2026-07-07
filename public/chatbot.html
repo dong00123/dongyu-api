@@ -593,7 +593,7 @@
                 </div>
             </div>
 
-            <!-- 2. 功能菜单 -->
+            <!-- 2. 功能菜单【核心修改：订单查询/产品推荐/退款处理弹窗详情完善】 -->
             <div class="page-item" id="page-funcMenu">
                 <div class="func-card">
                     <h2>⚙️ 功能菜单管理</h2>
@@ -601,17 +601,17 @@
                     <p>后端接口：/api/funcMenu</p>
                     <h3 style="margin-top:20px;">全部功能列表</h3>
                     <div style="margin:10px 0;">
-                        <span class="tag-blue" onclick="openDetail('订单查询','该功能支持用户查询全部历史订单、物流状态、售后记录')">订单查询</span>
-                        <span class="tag-blue" onclick="openDetail('产品推荐','根据用户浏览记录自动匹配相关商品推送')">产品推荐</span>
-                        <span class="tag-blue" onclick="openDetail('退款处理','自助发起退款、审核进度查询、金额原路退回')">退款处理</span>
+                        <span class="tag-blue" onclick="openDetail('订单查询','【功能完整说明】\n1. 触发方式：用户发送手机号、订单编号、快递单号自动识别；\n2. 展示内容：商品名称、规格、下单时间、支付金额、物流轨迹、售后记录；\n3. 状态覆盖：待付款、待发货、运输中、已签收、退货中、退款完成；\n4. 配套能力：自动推送物流更新、售后入口、补发/换货引导话术。')">订单查询</span>
+                        <span class="tag-blue" onclick="openDetail('产品推荐','【功能完整说明】\n1. 推荐逻辑：基于用户浏览、咨询、下单历史做协同过滤匹配；\n2. 推送形式：对话末尾自动弹出3款同类商品，搭配优惠活动；\n3. 自定义配置：可设置推荐数量、过滤下架商品、限制低价商品；\n4. 业务价值：提升商品转化率，减少人工手动推销。')">产品推荐</span>
+                        <span class="tag-blue" onclick="openDetail('退款处理','【功能完整说明】\n1. 自助操作：用户可发起全额退款、部分退款、仅退运费；\n2. 校验规则：自动判断订单是否满足7天无理由、商品是否已拆封；\n3. 进度同步：实时展示商家审核状态、退款到账渠道、预计到账时效；\n4. 异常处理：拒绝退款时自动推送申诉入口，转人工复核。')">退款处理</span>
                         <span class="tag-blue" onclick="openDetail('知识查询','检索知识库自动回复常规咨询问题')">知识查询</span>
                         <span class="tag-blue" onclick="openDetail('转人工','机器人无法解答时自动转接真人客服接待')">转人工</span>
                     </div>
                     <h3 style="margin-top:20px;">已启用功能</h3>
                     <div style="margin:10px 0;">
-                        <span class="tag-green" onclick="openDetail('订单查询','当前已启用，用户可正常查询订单物流信息')">订单查询</span>
-                        <span class="tag-green" onclick="openDetail('产品推荐','当前已启用，对话内自动推荐匹配商品')">产品推荐</span>
-                        <span class="tag-green" onclick="openDetail('退款处理','当前已启用，支持用户自助申请退款')">退款处理</span>
+                        <span class="tag-green" onclick="openDetail('订单查询','当前状态：已启用\n【功能完整说明】\n1. 触发方式：用户发送手机号、订单编号、快递单号自动识别；\n2. 展示内容：商品名称、规格、下单时间、支付金额、物流轨迹、售后记录；\n3. 状态覆盖：待付款、待发货、运输中、已签收、退货中、退款完成；\n4. 配套能力：自动推送物流更新、售后入口、补发/换货引导话术。')">订单查询</span>
+                        <span class="tag-green" onclick="openDetail('产品推荐','当前状态：已启用\n【功能完整说明】\n1. 推荐逻辑：基于用户浏览、咨询、下单历史做协同过滤匹配；\n2. 推送形式：对话末尾自动弹出3款同类商品，搭配优惠活动；\n3. 自定义配置：可设置推荐数量、过滤下架商品、限制低价商品；\n4. 业务价值：提升商品转化率，减少人工手动推销。')">产品推荐</span>
+                        <span class="tag-green" onclick="openDetail('退款处理','当前状态：已启用\n【功能完整说明】\n1. 自助操作：用户可发起全额退款、部分退款、仅退运费；\n2. 校验规则：自动判断订单是否满足7天无理由、商品是否已拆封；\n3. 进度同步：实时展示商家审核状态、退款到账渠道、预计到账时效；\n4. 异常处理：拒绝退款时自动推送申诉入口，转人工复核。')">退款处理</span>
                     </div>
                 </div>
             </div>
@@ -751,7 +751,7 @@
             <div class="modal-mask" onclick="closeModal(event)">
                 <div class="modal-box" onclick="event.stopPropagation()">
                     <h3>${title}</h3>
-                    <p style="line-height:1.7;color:#444;">${content}</p>
+                    <p style="line-height:1.7;color:#444;white-space:pre-line;">${content}</p>
                     <button class="modal-close" onclick="closeModal()">关闭</button>
                 </div>
             </div>
