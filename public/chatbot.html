@@ -950,30 +950,30 @@
     }
 
     // 内置模拟大模型对话，无需后端接口也能回复
-    async function sendQuestion() {
-        if (loading) return;
-        const q = userInput.value.trim();
-        if (!q) return;
+  async function sendQuestion() {
+    if (loading) return;
+    const q = userInput.value.trim();
+    if (!q) return;
 
-        appendMsg("user", q);
-        userInput.value = "";
-        loading = true;
-        sendBtn.disabled = true;
+    appendMsg("user", q);
+    userInput.value = "";
+    loading = true;
+    sendBtn.disabled = true;
 
-        const loadingTip = document.createElement("div");
-        loadingTip.className = "loading-msg";
-        loadingTip.innerText = "机器人思考中...";
-        chatBox.appendChild(loadingTip);
-        chatBox.scrollTop = chatBox.scrollHeight;
+    const loadingTip = document.createElement("div");
+    loadingTip.className = "loading-msg";
+    loadingTip.innerText = "机器人思考中...";
+    chatBox.appendChild(loadingTip);
+    chatBox.scrollTop = chatBox.scrollHeight;
 
-        // 内置模拟大模型回复，无需接口
-        setTimeout(()=>{
-            loadingTip.remove();
-            let reply = "";
-            // 匹配11位手机号
-            const phoneReg = /1[3-9]\d{10}/;
-            if(phoneReg.test(q)){
-                reply = `根据手机号为您查询到全部9笔历史订单：
+    setTimeout(()=>{
+        loadingTip.remove();
+        let reply = "";
+        // 修复：严格匹配11位手机号，首尾加边界 ^ $
+        const phoneReg = /^1[3-9]\d{10}$/;
+        // 优先判断手机号，优先级最高
+        if(phoneReg.test(q)){
+            reply = `根据手机号为您查询到全部9笔历史订单：
 【订单1 | 毛先生】
 订单编号：DD20260707001
 购买商品：夏季纯棉短袖T恤（白色L码）
@@ -1036,26 +1036,17 @@
 实付金额：79元 | 下单时间：2026-05-28 10:05
 物流单号：SF1234567733 | 当前状态：已签收
 售后状态：全额退款完成，资金已原路返还`;
-            }else if(q.includes("订单")){
-                reply = "您好，您可以发送完整11位手机号，我为您查询名下全部9条订单物流信息；示例手机号：15701397040";
-            }else if(q.includes("退款")){
-                reply = "您好，支持7天无理由全额退款，您发送手机号，我可以查询对应订单退款入口；";
-            }else if(q.includes("推荐商品") || q.includes("买什么")){
-                reply = "本店主推短袖、短裤、防晒三件套，搭配下单满130减30，性价比很高哦";
-            }else{
-                reply = "您好，我可以为您查询订单、介绍商品、讲解退款流程，您直接输入手机号即可查询全部9笔历史订单";
-            }
-            appendMsg("bot", reply);
-            loading = false;
-            sendBtn.disabled = false;
-        },1200);
-    }
-
-    // 绑定发送按钮点击、回车快捷键
-    sendBtn.addEventListener("click", sendQuestion);
-    userInput.addEventListener("keydown", e => {
-        if (e.key === "Enter") sendQuestion();
-    });
-</script>
-</body>
-</html>
+        }else if(q.includes("订单")){
+            reply = "您好，您可以发送完整11位手机号，我为您查询名下全部9条订单物流信息；示例手机号：15701397040";
+        }else if(q.includes("退款")){
+            reply = "您好，支持7天无理由全额退款，您发送手机号，我可以查询对应订单退款入口；";
+        }else if(q.includes("推荐商品") || q.includes("买什么")){
+            reply = "本店主推短袖、短裤、防晒三件套，搭配下单满130减30，性价比很高哦";
+        }else{
+            reply = "您好，我可以为您查询订单、介绍商品、讲解退款流程，您直接输入手机号即可查询全部9笔历史订单";
+        }
+        appendMsg("bot", reply);
+        loading = false;
+        sendBtn.disabled = false;
+    },1200);
+}
