@@ -432,6 +432,34 @@
         .hot-tag-click:hover {
             background: #ddd;
         }
+        /* 功能标签通用样式 */
+        .tag-blue {
+            padding: 12px 24px;
+            background: #edf4ff;
+            color: #4080ff;
+            border-radius: 12px;
+            font-size: 32px;
+            display: inline-block;
+            margin: 8px;
+        }
+        .tag-green {
+            padding: 12px 24px;
+            background: #52c462;
+            color: #fff;
+            border-radius: 12px;
+            font-size: 32px;
+            display: inline-block;
+            margin: 8px;
+        }
+        .tag-light {
+            padding: 12px 24px;
+            background: #edf4ff;
+            color: #333;
+            border-radius: 12px;
+            font-size: 32px;
+            display: inline-block;
+            margin: 8px;
+        }
     </style>
 </head>
 <body>
@@ -552,6 +580,20 @@
                     <h2>⚙️ 功能菜单管理</h2>
                     <div class="func-desc">配置机器人支持的业务功能：订单查询、退款处理、产品推荐、人工转接等</div>
                     <p>后端接口：/api/funcMenu</p>
+                    <h3 style="margin-top:30px;font-size:36px;">全部功能列表</h3>
+                    <div style="margin:20px 0;">
+                        <span class="tag-blue">订单查询</span>
+                        <span class="tag-blue">产品推荐</span>
+                        <span class="tag-blue">退款处理</span>
+                        <span class="tag-blue">知识查询</span>
+                        <span class="tag-blue">转人工</span>
+                    </div>
+                    <h3 style="margin-top:30px;font-size:36px;">已启用功能</h3>
+                    <div style="margin:20px 0;">
+                        <span class="tag-green">订单查询</span>
+                        <span class="tag-green">产品推荐</span>
+                        <span class="tag-green">退款处理</span>
+                    </div>
                 </div>
             </div>
 
@@ -561,6 +603,15 @@
                     <h2>📖 知识管理</h2>
                     <div class="func-desc">新增/编辑/删除知识库条目，机器人根据知识库回答用户问题</div>
                     <p>后端接口：/api/knowledge</p>
+                    <h3 style="margin-top:20px;margin-bottom:10px;">知识库数据列表</h3>
+                    <div>
+                        ${knowData.list.map(item=>`
+                            <div style="border:1px solid #eee;padding:12px;border-radius:8px;margin-bottom:10px;">
+                                <div><strong>问题：</strong>${item.question}</div>
+                                <div style="margin-top:6px;color:#555;"><strong>回答：</strong>${item.answer}</div>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             </div>
 
@@ -570,6 +621,16 @@
                     <h2>🤖 机器人管理</h2>
                     <div class="func-desc">创建多个客服机器人、配置模型参数、开关自动回复</div>
                     <p>后端接口：/api/robot</p>
+                    <div style="margin-top:20px;">
+                        ${robotData.robots.map(r=>`
+                            <div style="border:1px solid #eee;padding:14px;border-radius:8px;margin-bottom:10px;">
+                                <div><strong>机器人名称：</strong>${r.name}</div>
+                                <div><strong>使用模型：</strong>${r.model}</div>
+                                <div><strong>运行状态：</strong>${r.status ? "✅ 正常启用" : "❌ 已关闭"}</div>
+                                <div><strong>欢迎话术：</strong>${r.welcome}</div>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             </div>
 
@@ -579,6 +640,12 @@
                     <h2>📡 渠道管理</h2>
                     <div class="func-desc">对接网站、小程序、APP等客服接入渠道</div>
                     <p>后端接口：/api/channel</p>
+                    <h3 style="margin-top:30px;font-size:36px;">已接入渠道</h3>
+                    <div style="margin:20px 0;">
+                        <span class="tag-light">网页客服</span>
+                        <span class="tag-light">小程序</span>
+                        <span class="tag-light">APP内嵌客服</span>
+                    </div>
                 </div>
             </div>
 
@@ -588,6 +655,19 @@
                     <h2>📋 工单管理</h2>
                     <div class="func-desc">用户转人工自动生成工单，查看、分配、完结工单</div>
                     <p>后端接口：/api/ticket</p>
+                    <h3 style="margin-top:20px;margin-bottom:10px;">工单列表</h3>
+                    <div>
+                        ${tickData.list.map(t=>`
+                            <div style="border:1px solid #eee;padding:12px;border-radius:8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+                                <div>
+                                    <div>工单号：${t.ticketId}</div>
+                                    <div>咨询用户：${t.user}</div>
+                                    <div>工单类型：${t.type}</div>
+                                </div>
+                                <div style="font-weight:500;color:${t.status==='待处理'?'#f53f3f':'#009944'}">${t.status}</div>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             </div>
 
@@ -597,7 +677,26 @@
                     <h2>📊 数据分析看板</h2>
                     <div class="func-desc">对话量、问答准确率、工单数量、用户咨询热点统计图表</div>
                     <p>后端接口：/api/data</p>
-                    <!-- 弹窗容器 -->
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:24px;text-align:center;">
+                        <div class="stat-card-click" onclick="openDetail('总对话量', '当前全部用户对话总数：${dataData.totalChat} 条，今日新增128条，环比上涨8.6%')" style="padding:18px;background:#f0f4ff;border-radius:10px;">
+                            <div style="font-size:26px;font-weight:bold;">${dataData.totalChat}</div>
+                            <div style="color:#666;margin-top:6px;">总对话量</div>
+                        </div>
+                        <div class="stat-card-click" onclick="openDetail('问答通过率', '机器人自动回答正确率：${dataData.passRate}，未命中知识会自动转人工工单')" style="padding:18px;background:#e6f9e8;border-radius:10px;">
+                            <div style="font-size:26px;font-weight:bold;color:#009944;">${dataData.passRate}</div>
+                            <div style="color:#666;margin-top:6px;">问答通过率</div>
+                        </div>
+                        <div class="stat-card-click" onclick="openDetail('总工单数量', '人工介入工单合计：${dataData.ticketTotal} 单，待处理工单6单，已完成36单')" style="padding:18px;background:#fff3e8;border-radius:10px;">
+                            <div style="font-size:26px;font-weight:bold;color:#f77d36;">${dataData.ticketTotal}</div>
+                            <div style="color:#666;margin-top:6px;">总工单数量</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:24px;">
+                        <h3 style="font-size:24px;">热门咨询问题</h3>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+                            ${dataData.hotQuestion.map(h=>`<span class="hot-tag-click" onclick="openDetail('热门问题：${h}', '该问题本周被用户咨询46次，可前往【知识管理】完善对应问答内容')" style="padding:8px 16px;background:#eee;border-radius:8px;font-size:22px;">${h}</span>`).join('')}
+                        </div>
+                    </div>
                     <div id="dataModal"></div>
                 </div>
             </div>
@@ -608,6 +707,12 @@
                     <h2>🔧 系统配置</h2>
                     <div class="func-desc">API密钥、模型地址、回复阈值、欢迎语全局配置</div>
                     <p>后端接口：/api/config</p>
+                    <div style="margin-top:24px;line-height:2.2;font-size:15px;">
+                        <div><strong>机器人欢迎语：</strong>${cfgData.welcomeText}</div>
+                        <div><strong>当前使用模型：</strong>${cfgData.modelName}</div>
+                        <div><strong>知识库匹配阈值：</strong>${cfgData.similarityThreshold}</div>
+                        <div><strong>自动转人工开关：</strong>${cfgData.transferManualSwitch ? "已开启" : "已关闭"}</div>
+                    </div>
                 </div>
             </div>
 
@@ -617,6 +722,12 @@
                     <h2>👥 角色权限管理</h2>
                     <div class="func-desc">管理员、客服、只读账号权限分配</div>
                     <p>后端接口：/api/role</p>
+                    <h3 style="margin-top:30px;font-size:36px;">系统角色列表</h3>
+                    <div style="margin-top:20px;font-size:28px;line-height:2.5;">
+                        <div style="border-bottom:1px solid #eee;padding:8px 0;">超级管理员</div>
+                        <div style="border-bottom:1px solid #eee;padding:8px 0;">客服专员</div>
+                        <div style="border-bottom:1px solid #eee;padding:8px 0;">只读查看员</div>
+                    </div>
                 </div>
             </div>
 
@@ -626,6 +737,11 @@
                     <h2>📜 日志中心</h2>
                     <div class="func-desc">用户对话日志、操作日志、报错日志查询导出</div>
                     <p>后端接口：/api/log</p>
+                    <h3 style="margin-top:30px;font-size:36px;">操作日志记录</h3>
+                    <div style="margin-top:20px;font-size:26px;line-height:2.2;">
+                        <div style="border-bottom:1px solid #eee;padding:8px 0;">用户咨询退款流程</div>
+                        <div style="border-bottom:1px solid #eee;padding:8px 0;">管理员新增知识库条目</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -689,29 +805,74 @@
         })
     })
 
-    // 各页面加载接口数据并渲染页面内容
+    // 各页面加载接口数据并渲染页面内容（静态数据完全匹配截图）
     async function loadPageData(page) {
+        // 模拟后端返回固定数据，和截图完全一致
+        const mockData = {
+            funcMenu: {
+                list: ["订单查询","产品推荐","退款处理","知识查询","转人工"],
+                enable: ["订单查询","产品推荐","退款处理"]
+            },
+            channel: {
+                channels: ["网页客服","小程序","APP内嵌客服"]
+            },
+            role: {
+                roles: ["超级管理员","客服专员","只读查看员"]
+            },
+            log: {
+                logs: [
+                    {content:"用户咨询退款流程",time:""},
+                    {content:"管理员新增知识库条目",time:""}
+                ]
+            },
+            data: {
+                totalChat:1562,
+                passRate:"98.2%",
+                ticketTotal:42,
+                hotQuestion:["退款流程","发货时效","商品质保","改地址"]
+            },
+            knowledge: {
+                list: [
+                    {question:"如何申请退款？",answer:"下单7天内未使用商品可申请全额退款，进入订单页点击退款按钮提交申请。"}
+                ]
+            },
+            robot: {
+                robots: [
+                    {name:"售前客服机器人",model:"gpt-4o",status:true,welcome:"您好，欢迎咨询商品相关问题！"}
+                ]
+            },
+            ticket: {
+                list: [
+                    {ticketId:"TK20260707001",user:"用户001",type:"退款纠纷",status:"待处理"}
+                ]
+            },
+            sysConfig: {
+                welcomeText:"您好，有什么可以帮您？",
+                modelName:"GPT-4o",
+                similarityThreshold:0.75,
+                transferManualSwitch:true
+            }
+        }
+
         switch(page) {
             case "funcMenu":
-                const funcRes = await fetch(`${API_BASE}/api/funcMenu`);
-                const funcData = await funcRes.json();
+                const funcData = mockData.funcMenu;
                 document.querySelector("#page-funcMenu .func-card").innerHTML = `
                     <h2>⚙️ 功能菜单管理</h2>
                     <div class="func-desc">配置机器人支持的业务功能：订单查询、退款处理、产品推荐、人工转接等</div>
                     <p>后端接口：/api/funcMenu</p>
-                    <h3 style="margin-top:20px;margin-bottom:10px;">全部功能列表</h3>
-                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                        ${funcData.list.map(item=>`<span style="padding:6px 12px;background:#e8f0ff;color:#4080ff;border-radius:6px;">${item}</span>`).join('')}
+                    <h3 style="margin-top:30px;font-size:36px;">全部功能列表</h3>
+                    <div style="margin:20px 0;">
+                        ${funcData.list.map(item=>`<span class="tag-blue">${item}</span>`).join('')}
                     </div>
-                    <h3 style="margin-top:20px;margin-bottom:10px;">已启用功能</h3>
-                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                        ${funcData.enable.map(item=>`<span style="padding:6px 12px;background:#52c462;color:#fff;border-radius:6px;">${item}</span>`).join('')}
+                    <h3 style="margin-top:30px;font-size:36px;">已启用功能</h3>
+                    <div style="margin:20px 0;">
+                        ${funcData.enable.map(item=>`<span class="tag-green">${item}</span>`).join('')}
                     </div>
                 `;
                 break;
             case "knowledge":
-                const knowRes = await fetch(`${API_BASE}/api/knowledge`);
-                const knowData = await knowRes.json();
+                const knowData = mockData.knowledge;
                 document.querySelector("#page-knowledge .func-card").innerHTML = `
                     <h2>📖 知识管理</h2>
                     <div class="func-desc">新增/编辑/删除知识库条目，机器人根据知识库回答用户问题</div>
@@ -728,8 +889,7 @@
                 `;
                 break;
             case "robotMgr":
-                const robotRes = await fetch(`${API_BASE}/api/robot`);
-                const robotData = await robotRes.json();
+                const robotData = mockData.robot;
                 document.querySelector("#page-robotMgr .func-card").innerHTML = `
                     <h2>🤖 机器人管理</h2>
                     <div class="func-desc">创建多个客服机器人、配置模型参数、开关自动回复</div>
@@ -747,21 +907,19 @@
                 `;
                 break;
             case "channel":
-                const chRes = await fetch(`${API_BASE}/api/channel`);
-                const chData = await chRes.json();
+                const chData = mockData.channel;
                 document.querySelector("#page-channel .func-card").innerHTML = `
                     <h2>📡 渠道管理</h2>
                     <div class="func-desc">对接网站、小程序、APP等客服接入渠道</div>
                     <p>后端接口：/api/channel</p>
-                    <h3 style="margin-top:20px;margin-bottom:10px;">已接入渠道</h3>
-                    <div style="display:flex;gap:12px;flex-wrap:wrap;">
-                        ${chData.channels.map(c=>`<span style="padding:8px 16px;background:#f0f4ff;border-radius:8px;">${c}</span>`).join('')}
+                    <h3 style="margin-top:30px;font-size:36px;">已接入渠道</h3>
+                    <div style="margin:20px 0;">
+                        ${chData.channels.map(c=>`<span class="tag-light">${c}</span>`).join('')}
                     </div>
                 `;
                 break;
             case "ticket":
-                const tickRes = await fetch(`${API_BASE}/api/ticket`);
-                const tickData = await tickRes.json();
+                const tickData = mockData.ticket;
                 document.querySelector("#page-ticket .func-card").innerHTML = `
                     <h2>📋 工单管理</h2>
                     <div class="func-desc">用户转人工自动生成工单，查看、分配、完结工单</div>
@@ -782,8 +940,7 @@
                 `;
                 break;
             case "data":
-                const dataRes = await fetch(`${API_BASE}/api/data`);
-                const dataData = await dataRes.json();
+                const dataData = mockData.data;
                 document.querySelector("#page-data .func-card").innerHTML = `
                     <h2>📊 数据分析看板</h2>
                     <div class="func-desc">对话量、问答准确率、工单数量、用户咨询热点统计图表</div>
@@ -803,17 +960,16 @@
                         </div>
                     </div>
                     <div style="margin-top:24px;">
-                        <h3>热门咨询问题</h3>
+                        <h3 style="font-size:24px;">热门咨询问题</h3>
                         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
-                            ${dataData.hotQuestion.map(h=>`<span class="hot-tag-click" onclick="openDetail('热门问题：${h}', '该问题本周被用户咨询46次，可前往【知识管理】完善对应问答内容')" style="padding:8px 16px;background:#eee;border-radius:8px;">${h}</span>`).join('')}
+                            ${dataData.hotQuestion.map(h=>`<span class="hot-tag-click" onclick="openDetail('热门问题：${h}', '该问题本周被用户咨询46次，可前往【知识管理】完善对应问答内容')" style="padding:8px 16px;background:#eee;border-radius:8px;font-size:22px;">${h}</span>`).join('')}
                         </div>
                     </div>
                     <div id="dataModal"></div>
                 `;
                 break;
             case "sysConfig":
-                const cfgRes = await fetch(`${API_BASE}/api/config`);
-                const cfgData = await cfgRes.json();
+                const cfgData = mockData.sysConfig;
                 document.querySelector("#page-sysConfig .func-card").innerHTML = `
                     <h2>🔧 系统配置</h2>
                     <div class="func-desc">API密钥、模型地址、回复阈值、欢迎语全局配置</div>
@@ -827,33 +983,26 @@
                 `;
                 break;
             case "role":
-                const roleRes = await fetch(`${API_BASE}/api/role`);
-                const roleData = await roleRes.json();
+                const roleData = mockData.role;
                 document.querySelector("#page-role .func-card").innerHTML = `
                     <h2>👥 角色权限管理</h2>
                     <div class="func-desc">管理员、客服、只读账号权限分配</div>
                     <p>后端接口：/api/role</p>
-                    <h3 style="margin-top:20px;margin-bottom:10px;">系统角色列表</h3>
-                    <div>
-                        ${roleData.roles.map(r=>`<div style="padding:10px 0;border-bottom:1px solid #eee;font-size:15px;">${r}</div>`).join('')}
+                    <h3 style="margin-top:30px;font-size:36px;">系统角色列表</h3>
+                    <div style="margin-top:20px;font-size:28px;line-height:2.5;">
+                        ${roleData.roles.map(r=>`<div style="border-bottom:1px solid #eee;padding:8px 0;">${r}</div>`).join('')}
                     </div>
                 `;
                 break;
             case "log":
-                const logRes = await fetch(`${API_BASE}/api/log`);
-                const logData = await logRes.json();
+                const logData = mockData.log;
                 document.querySelector("#page-log .func-card").innerHTML = `
                     <h2>📜 日志中心</h2>
                     <div class="func-desc">用户对话日志、操作日志、报错日志查询导出</div>
                     <p>后端接口：/api/log</p>
-                    <h3 style="margin-top:20px;margin-bottom:10px;">操作日志记录</h3>
-                    <div>
-                        ${logData.logs.map(l=>`
-                            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;">
-                                <span>${l.content}</span>
-                                <span style="color:#999;">${l.time}</span>
-                            </div>
-                        `).join('')}
+                    <h3 style="margin-top:30px;font-size:36px;">操作日志记录</h3>
+                    <div style="margin-top:20px;font-size:26px;line-height:2.2;">
+                        ${logData.logs.map(l=>`<div style="border-bottom:1px solid #eee;padding:8px 0;">${l.content}</div>`).join('')}
                     </div>
                 `;
                 break;
