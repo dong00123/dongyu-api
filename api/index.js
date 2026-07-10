@@ -343,4 +343,4 @@ app.use((req, res) => {
   return res.status(404).send('页面不存在');
 });
 
-module.exports = app;
+export default app;
