@@ -3,225 +3,349 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>旅游Agent 旅行规划控制台</title>
+<title>Travel Agent | 智能旅行规划引擎</title>
 <style>
-*{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "PingFang SC", "Microsoft Yahei", sans-serif;
+    font-family: "Inter", "Noto Sans SC", system-ui, sans-serif;
 }
-body{
-    background-color: #f8f5f0;
-    padding: 32px;
-    color: #333;
+
+:root {
+    --bg-main: #070814;
+    --bg-card: rgba(18, 20, 38, 0.75);
+    --border-glass: rgba(124, 140, 255, 0.12);
+    --accent-primary: #7c8cff;
+    --accent-gradient: linear-gradient(135deg, #7c8cff 0%, #ff6bcb 100%);
+    --text-white: #f7f8ff;
+    --text-gray: #a9b2d3;
+    --shadow-glow: 0 0 35px rgba(124, 140, 255, 0.18);
 }
-.wrap{
-    max-width: 1400px;
+
+body {
+    background-color: var(--bg-main);
+    background-image:
+        radial-gradient(circle at 15% 10%, rgba(124, 140, 255, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 85% 75%, rgba(255, 107, 203, 0.06) 0%, transparent 40%);
+    min-height: 100vh;
+    padding: 48px 24px;
+    color: var(--text-white);
+}
+
+.container {
+    max-width: 1440px;
     margin: 0 auto;
 }
-.header-card{
-    background: #fff9f0;
-    border-radius: 16px;
-    padding: 28px 32px;
-    margin-bottom: 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+
+/* 头部标题区域 */
+.page-header {
+    text-align: center;
+    margin-bottom: 52px;
 }
-.header-left h1{
-    font-size: 42px;
-    font-weight: 600;
-    color: #222;
+.page-header h1 {
+    font-size: 46px;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 700;
     letter-spacing: 2px;
+    margin-bottom: 12px;
 }
-.header-left p{
-    color: #777;
-    margin-top: 8px;
-    font-size: 14px;
+.page-header p {
+    color: var(--text-gray);
+    font-size: 15px;
+    max-width: 680px;
+    margin: 0 auto;
+    line-height: 1.7;
 }
-.header-right{
-    font-size: 13px;
-    color: #666;
-    line-height: 1.6;
+.tip-tag-group {
+    margin-top: 16px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
 }
-.main-row{
+.tip-tag {
+    padding: 6px 14px;
+    border: 1px solid var(--border-glass);
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--text-gray);
+    backdrop-filter: blur(6px);
+}
+
+/* 双栏主布局 */
+.main-grid {
     display: grid;
-    grid-template-columns: 420px 1fr;
-    gap: 24px;
+    grid-template-columns: 440px 1fr;
+    gap: 28px;
 }
-.col-card{
-    background: #fff9f0;
-    border-radius: 16px;
-    padding: 28px;
+
+/* 玻璃态卡片通用 */
+.glass-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: 20px;
+    padding: 32px;
+    backdrop-filter: blur(18px);
+    box-shadow: var(--shadow-glow);
 }
-.card-title{
+.card-title {
     font-size: 20px;
     font-weight: 600;
-    margin-bottom: 24px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #e8e0d5;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-glass);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
-.form-row{
+.card-title::before {
+    content: "";
+    width: 4px;
+    height: 20px;
+    border-radius: 2px;
+    background: var(--accent-gradient);
+}
+
+/* 表单布局 */
+.form-grid-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 18px;
+    gap: 18px;
+    margin-bottom: 22px;
 }
-.form-item label{
-    display: block;
+.form-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.form-full {
+    margin-bottom: 22px;
+}
+.form-item label {
     font-size: 13px;
-    color: #666;
-    margin-bottom: 6px;
+    color: var(--text-gray);
 }
 .form-item input,
 .form-item select,
-.form-item textarea{
+.form-item textarea {
     width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #e0d8cd;
-    border-radius: 8px;
-    background: #fff;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-glass);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: var(--text-white);
     font-size: 14px;
+    outline: none;
+    transition: 0.25s ease;
 }
-.form-full{
-    margin-bottom: 18px;
+.form-item input:focus,
+.form-item select:focus,
+.form-item textarea:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(124, 140, 255, 0.15);
+    background: rgba(255,255,255,0.07);
 }
-textarea{
-    min-height: 80px;
+textarea {
+    min-height: 110px;
     resize: none;
 }
-#genBtn{
+
+/* 生成按钮 */
+.generate-btn {
     width: 100%;
-    padding: 14px;
-    background: #e67840;
-    color: white;
+    padding: 14px 0;
+    border-radius: 12px;
     border: none;
-    border-radius: 10px;
+    background: var(--accent-gradient);
+    color: #fff;
     font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
-    transition: 0.2s;
+    transition: all 0.3s ease;
+    margin-top: 10px;
 }
-#genBtn:hover{
-    background: #d46b35;
+.generate-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(124, 140, 255, 0.3);
 }
-#genBtn:disabled{
-    background:#bbb;
-    cursor:not-allowed;
+.generate-btn:active {
+    transform: translateY(0);
 }
-.result-block{
-    margin-bottom: 28px;
+.generate-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
-.result-block h4{
-    font-size: 15px;
-    margin-bottom: 10px;
-    color: #444;
+
+/* 右侧结果区域 */
+.result-wrap {
+    min-height: 620px;
 }
-.result-text{
-    font-size: 14px;
-    line-height: 1.7;
-    color: #555;
+.empty-placeholder {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-gray);
+    gap: 12px;
+    padding: 40px;
+    text-align: center;
 }
-.item-line{
-    padding: 10px 12px;
-    background: #fff;
-    border-radius: 8px;
+.empty-placeholder svg {
+    opacity: 0.35;
     margin-bottom: 8px;
-    font-size: 14px;
-    display: flex;
-    justify-content: space-between;
 }
-.date-item{
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px dashed #eee;
-    font-size: 14px;
+
+/* 结果内容样式（适配后端返回HTML class） */
+.result-block {
+    margin-bottom: 36px;
 }
-.day-plan{
-    padding: 12px;
-    background: #fff;
-    border-radius: 8px;
+.result-block h4 {
+    font-size: 17px;
+    margin-bottom: 14px;
+    color: var(--accent-primary);
+    font-weight: 600;
+}
+.result-text {
+    line-height: 1.8;
+    color: var(--text-gray);
+    font-size: 14.5px;
+}
+.item-line {
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
     margin-bottom: 10px;
-    font-size: 14px;
-    line-height: 1.6;
+    display: flex;
+    justify-content: space-between;
+    border-left: 3px solid var(--accent-primary);
 }
-.loading-tip{
-    text-align:center;
-    padding:40px 0;
-    color:#888;
+.date-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border-glass);
+    color: var(--text-gray);
+}
+.day-plan {
+    padding: 16px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    margin-bottom: 14px;
+    line-height: 1.75;
+    color: var(--text-gray);
+}
+
+/* 加载动画 */
+.loading-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.skeleton-line {
+    height: 22px;
+    background: linear-gradient(90deg, rgba(124,140,255,0.08) 25%, rgba(124,140,255,0.16) 50%, rgba(124,140,255,0.08) 75%);
+    background-size: 200% 100%;
+    border-radius: 6px;
+    animation: skeletonShine 1.4s infinite;
+}
+@keyframes skeletonShine {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* 响应式适配移动端 */
+@media (max-width: 1024px) {
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+    .page-header h1 {
+        font-size: 34px;
+    }
 }
 </style>
 </head>
 <body>
-<div class="wrap">
-    <div class="header-card">
-        <div class="header-left">
-            <h1>旅游Agent</h1>
-            <p>把计划、票、住放进同一个工作流里，先筛出可行方案，再逐步补全天气、提醒、活动和每日安排。</p>
-        </div>
-        <div class="header-right">
-            • 本页支持<br>完整旅行方案<br>• 只查票<br>• 只查住
+<div class="container">
+    <div class="page-header">
+        <h1>Travel Agent 智能旅行规划引擎</h1>
+        <p>整合实时机票、高铁票务、目的地住宿与全域景点数据，由大模型自动生成可落地的全套私人旅行方案，一键完成行程规划</p>
+        <div class="tip-tag-group">
+            <span class="tip-tag">完整行程生成</span>
+            <span class="tip-tag">仅查询交通票务</span>
+            <span class="tip-tag">目的地住宿推荐</span>
         </div>
     </div>
 
-    <div class="main-row">
-        <!-- 左侧输入表单 -->
-        <div class="col-card">
-            <div class="card-title">旅行简报</div>
-            <div class="form-row">
+    <div class="main-grid">
+        <!-- 左侧表单面板 -->
+        <div class="glass-card">
+            <h2 class="card-title">行程参数配置</h2>
+            <div class="form-grid-row">
                 <div class="form-item">
-                    <label>出发地</label>
-                    <input id="startCity" value="北京">
+                    <label>出发城市</label>
+                    <input id="startCity" value="北京" placeholder="如：南阳、上海">
                 </div>
                 <div class="form-item">
-                    <label>目的地</label>
-                    <input id="endCity" value="郑州">
+                    <label>目的地城市</label>
+                    <input id="endCity" value="郑州" placeholder="如：西安、杭州">
                 </div>
             </div>
-            <div class="form-row">
+            <div class="form-grid-row">
                 <div class="form-item">
-                    <label>开始日期</label>
+                    <label>行程起始日期</label>
                     <input type="date" id="startDate" value="2026-07-10">
                 </div>
                 <div class="form-item">
-                    <label>结束日期</label>
+                    <label>行程结束日期</label>
                     <input type="date" id="endDate" value="2026-07-12">
                 </div>
             </div>
-            <div class="form-row">
+            <div class="form-grid-row">
                 <div class="form-item">
-                    <label>人数</label>
-                    <input type="number" id="personNum" value="3" min="1">
+                    <label>出行人数</label>
+                    <input type="number" id="personNum" min="1" value="3">
                 </div>
                 <div class="form-item">
-                    <label>总预算</label>
-                    <input type="number" id="budget" value="10000" min="0">
+                    <label>整体预算（元）</label>
+                    <input type="number" id="budget" min="0" value="10000">
                 </div>
             </div>
-            <div class="form-row">
+            <div class="form-grid-row">
                 <div class="form-item">
-                    <label>请求类型</label>
+                    <label>生成模式</label>
                     <select id="reqType">
-                        <option value="full">完整方案</option>
-                        <option value="train">仅查询火车票</option>
-                        <option value="flight">仅查询机票</option>
-                        <option value="hotel">仅查询住宿</option>
+                        <option value="full">✅ 完整全套方案</option>
+                        <option value="train">🚄 仅查询火车票</option>
+                        <option value="flight">✈️ 仅查询机票</option>
+                        <option value="hotel">🏨 仅推荐住宿</option>
                     </select>
                 </div>
             </div>
-            <div class="form-full">
-                <label>出行偏好</label>
-                <textarea id="pref" placeholder="每行写一个偏好，例如：酒店靠近地铁 / 想吃本地美食 / 尽量减少换乘">酒店靠近地铁、想吃本地美食、少赶路、偏爱人文古迹</textarea>
+            <div class="form-full form-item">
+                <label>个性化出行偏好</label>
+                <textarea id="pref" placeholder="例如：酒店靠近地铁口、优先本地特色美食、少换乘少赶路、偏向人文古迹打卡、避开网红人流景点">酒店靠近地铁、想吃本地美食、少赶路、偏爱人文古迹</textarea>
             </div>
-            <button id="genBtn">生成专属旅行方案</button>
+            <button class="generate-btn" id="genBtn">🚀 一键生成专属旅行方案</button>
         </div>
 
-        <!-- 右侧结果面板 -->
-        <div class="col-card">
-            <div class="card-title">旅行方案结果</div>
+        <!-- 右侧结果展示面板 -->
+        <div class="glass-card result-wrap">
+            <h2 class="card-title">规划方案输出</h2>
             <div id="resultBox">
-                <div class="loading-tip">填写左侧信息后点击生成，后端自动调用天行机票API+12306火车票接口，由大模型生成全套行程</div>
+                <div class="empty-placeholder">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#7c8cff" stroke-width="1.2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    <p>填写左侧行程信息并点击生成按钮</p>
+                    <p style="font-size:12px;">系统自动拉取票务实时数据，AI生成结构化旅行计划</p>
+                </div>
             </div>
         </div>
     </div>
@@ -243,12 +367,21 @@ genBtn.onclick = async ()=>{
     const pref = document.getElementById('pref').value.trim();
 
     if(!startCity||!endCity||!startDate||!endDate){
-        alert('请补全出发地、目的地、起止日期');
+        alert('请完整填写出发地、目的地与起止日期');
         return;
     }
 
     genBtn.disabled = true;
-    resultBox.innerHTML = `<div class="loading-tip">正在调用机票/火车票API，大模型正在生成规划，请稍候...</div>`;
+    // 骨架加载占位
+    resultBox.innerHTML = `
+    <div class="loading-skeleton">
+        <div class="skeleton-line" style="width:75%;"></div>
+        <div class="skeleton-line" style="width:90%;"></div>
+        <div class="skeleton-line" style="width:65%;"></div>
+        <div class="skeleton-line" style="width:82%;"></div>
+        <div class="skeleton-line" style="width:55%;"></div>
+    </div>
+    `;
 
     try{
         const res = await fetch(`${API_BASE}/api/travel`,{
@@ -261,7 +394,7 @@ genBtn.onclick = async ()=>{
         const data = await res.json();
         resultBox.innerHTML = data.html;
     }catch(err){
-        resultBox.innerHTML = `<div style="color:#e64340;padding:20px;">请求异常：${err.message}<br>请确认后端接口已部署并开启</div>`;
+        resultBox.innerHTML = `<div style="color:#ff7b92;padding:20px;border:1px solid rgba(255,123,146,0.2);border-radius:12px;">❌ 请求异常：${err.message}<br>请确认后端服务正常部署运行</div>`;
     }finally{
         genBtn.disabled = false;
     }
