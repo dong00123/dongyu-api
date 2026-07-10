@@ -3,6 +3,7 @@ import cors from 'cors';
 import axios from 'axios';
 
 const app = express();
+const port = Number(process.env.PORT || 8080);
 const publicPath = `${process.cwd()}/public`;
 
 app.use(cors());
@@ -342,4 +343,7 @@ app.use((req, res) => {
   return res.status(404).send('页面不存在');
 });
 
-export default app;
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server is running on port ${port}`);
+});
+
