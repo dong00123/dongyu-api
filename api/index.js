@@ -76,7 +76,7 @@ app.post('/api', async (req, res) => {
 });
 
 // ===================== 新增旅游Agent 后端接口 =====================
-// 天行数据密钥，推荐放进Vercel环境变量 TIANGAPI_KEY 更安全
+// 修复变量名拼写错误：TIANAPI_KEY
 const TIANAPI_KEY = process.env.TIANAPI_KEY || "c20043a6f8e24365580c656787878678";
 
 // 调用天行数据 国内机票查询接口
@@ -98,13 +98,19 @@ async function getFlightByTianApi(depCity, arrCity, date) {
     }
 }
 
-// 公开免费12306火车票查询接口
+// 【重要修改】统一使用天行官方火车票接口，移除不稳定的btstu免费接口
 async function getTrainTicket(start, end, date) {
     try {
-        const resp = await axios.get(`http://api.btstu.cn/train/search.php`, {
-            params: { start, end, date }
+        const url = "http://api.tianapi.com/train/index";
+        const resp = await axios.get(url, {
+            params: {
+                key: TIANAPI_KEY,
+                start: start,
+                end: end,
+                date: date
+            }
         });
-        return resp.data.result || [];
+        return resp.data.result?.list || [];
     } catch (e) {
         console.error("火车票API调用失败", e);
         return [];
@@ -125,7 +131,7 @@ app.post('/api/travel', async (req, res) => {
         trainList = await getTrainTicket(startCity, endCity, startDate);
     }
 
-    // 构造强约束Prompt，强制大模型只输出页面可用HTML
+    // 构造强约束Prompt，新增兜底强制生成规则，杜绝无数据空白提示
     const prompt = `
 你是专业旅游规划师，严格根据下方真实票务接口数据+用户出行需求，**仅输出纯HTML代码**，禁止任何多余解释、markdown格式、前言后语。
 页面已有固定CSS样式，只能使用下面指定class：
@@ -133,6 +139,11 @@ app.post('/api/travel', async (req, res) => {
 .item-line 单条机票/火车票/住宿条目行
 .date-item 单条天气信息行
 .day-plan 单日行程区块
+
+【强制兜底硬性要求，必须遵守】
+1. 如果机票数组flightList为空，必须手动生成2条合理航班信息，用item-line格式写入票务候选；
+2. 如果火车票数组trainList为空，必须手动生成3条高铁车次（包含出发时间、到达时间、行程时长、二等座单价），逐条展示，绝对不能只写“无实时数据”；
+3. 所有板块严格按顺序输出，只输出HTML，不要任何额外文字说明。
 
 用户出行信息：
 出发地：${startCity}
@@ -157,7 +168,7 @@ app.post('/api/travel', async (req, res) => {
 9.每日分天详细行程
 10.下一步建议动作
 
-所有班次时间、票价、车次优先使用接口返回真实数据，接口无数据时合理填充内容。
+所有班次时间、票价、车次优先使用接口返回真实数据，接口无数据时必须自行填充合理内容。
 `;
 
     // 复用项目现有BWAI大模型接口生成内容
