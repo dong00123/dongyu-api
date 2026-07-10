@@ -299,7 +299,4 @@ app.get("/api/log", (req, res) => {
         ]
     })
 })
-
-app.listen(port, '0.0.0.0', () => {
-    console.log(`✅ 服务启动在端口 ${port}`);
-});
+export default app;
