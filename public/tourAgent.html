@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>旅游Agent</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:#1a1226;color:#fff;padding:40px;font-family:system-ui}
+        .container{max-width:1200px;margin:0 auto}
+        h1{font-size:32px;margin-bottom:20px;color:#ff5555}
+        .desc{color:#ccc;line-height:1.8;margin-bottom:30px}
+        .chat-box{background:#271d38;padding:24px;border-radius:12px;height:400px;overflow-y:auto;margin-bottom:16px}
+        .input-area{display:flex;gap:10px}
+        #userInput{flex:1;padding:12px 16px;border-radius:8px;border:0;outline:none}
+        #sendBtn{padding:0 24px;background:#ff5555;color:#fff;border:0;border-radius:8px;cursor:pointer}
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>旅游Agent 智能旅行规划助手</h1>
+    <p class="desc">输入你的出行目的地、天数、预算、偏好，AI自动生成行程、景点、美食、住宿全套旅游方案</p>
+    <div class="chat-box" id="chatBox">
+        <div style="margin:8px 0;">🤖 你好！我是旅游规划Agent，请告诉我你的目的地、出行天数、人均预算以及游玩偏好~</div>
+    </div>
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="例如：北京3天2晚，人均1500，喜欢人文古迹不吃辣">
+        <button id="sendBtn">发送规划</button>
+    </div>
+</div>
+<script>
+const chatBox = document.getElementById('chatBox');
+const userInput = document.getElementById('userInput');
+const sendBtn = document.getElementById('sendBtn');
+
+function addMsg(type,text){
+    const div = document.createElement('div');
+    div.style.margin = '8px 0';
+    div.innerHTML = type==='user' ? `👤 ${text}` : `🤖 ${text}`;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+sendBtn.onclick = ()=>{
+    const text = userInput.value.trim();
+    if(!text)return;
+    addMsg('user',text);
+    userInput.value = '';
+    setTimeout(()=>{
+        addMsg('bot',`已根据需求生成专属旅游行程：
+目的地：${text.split('，')[0]}
+✅ Day1：核心地标打卡+特色正餐
+✅ Day2：小众景点+当地小吃
+✅ Day3：文创街区+伴手礼采购
+住宿推荐：商圈便捷型酒店，总预算贴合你的要求~`);
+    },1000)
+}
+userInput.onkeydown = e=>e.key==='Enter'&&sendBtn.click();
+</script>
+</body>
+</html>
