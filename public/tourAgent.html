@@ -1,60 +1,271 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>旅游Agent</title>
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{background:#1a1226;color:#fff;padding:40px;font-family:system-ui}
-        .container{max-width:1200px;margin:0 auto}
-        h1{font-size:32px;margin-bottom:20px;color:#ff5555}
-        .desc{color:#ccc;line-height:1.8;margin-bottom:30px}
-        .chat-box{background:#271d38;padding:24px;border-radius:12px;height:400px;overflow-y:auto;margin-bottom:16px}
-        .input-area{display:flex;gap:10px}
-        #userInput{flex:1;padding:12px 16px;border-radius:8px;border:0;outline:none}
-        #sendBtn{padding:0 24px;background:#ff5555;color:#fff;border:0;border-radius:8px;cursor:pointer}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>旅游Agent 旅行规划控制台</title>
+<style>
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "PingFang SC", "Microsoft Yahei", sans-serif;
+}
+body{
+    background-color: #f8f5f0;
+    padding: 32px;
+    color: #333;
+}
+.wrap{
+    max-width: 1400px;
+    margin: 0 auto;
+}
+.header-card{
+    background: #fff9f0;
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.header-left h1{
+    font-size: 42px;
+    font-weight: 600;
+    color: #222;
+    letter-spacing: 2px;
+}
+.header-left p{
+    color: #777;
+    margin-top: 8px;
+    font-size: 14px;
+}
+.header-right{
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+}
+.main-row{
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 24px;
+}
+.col-card{
+    background: #fff9f0;
+    border-radius: 16px;
+    padding: 28px;
+}
+.card-title{
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e8e0d5;
+}
+.form-row{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+.form-item label{
+    display: block;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 6px;
+}
+.form-item input,
+.form-item select,
+.form-item textarea{
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e0d8cd;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 14px;
+}
+.form-full{
+    margin-bottom: 18px;
+}
+textarea{
+    min-height: 80px;
+    resize: none;
+}
+#genBtn{
+    width: 100%;
+    padding: 14px;
+    background: #e67840;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+#genBtn:hover{
+    background: #d46b35;
+}
+#genBtn:disabled{
+    background:#bbb;
+    cursor:not-allowed;
+}
+.result-block{
+    margin-bottom: 28px;
+}
+.result-block h4{
+    font-size: 15px;
+    margin-bottom: 10px;
+    color: #444;
+}
+.result-text{
+    font-size: 14px;
+    line-height: 1.7;
+    color: #555;
+}
+.item-line{
+    padding: 10px 12px;
+    background: #fff;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+}
+.date-item{
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed #eee;
+    font-size: 14px;
+}
+.day-plan{
+    padding: 12px;
+    background: #fff;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+.loading-tip{
+    text-align:center;
+    padding:40px 0;
+    color:#888;
+}
+</style>
 </head>
 <body>
-<div class="container">
-    <h1>旅游Agent 智能旅行规划助手</h1>
-    <p class="desc">输入你的出行目的地、天数、预算、偏好，AI自动生成行程、景点、美食、住宿全套旅游方案</p>
-    <div class="chat-box" id="chatBox">
-        <div style="margin:8px 0;">🤖 你好！我是旅游规划Agent，请告诉我你的目的地、出行天数、人均预算以及游玩偏好~</div>
+<div class="wrap">
+    <div class="header-card">
+        <div class="header-left">
+            <h1>旅游Agent</h1>
+            <p>把计划、票、住放进同一个工作流里，先筛出可行方案，再逐步补全天气、提醒、活动和每日安排。</p>
+        </div>
+        <div class="header-right">
+            • 本页支持<br>完整旅行方案<br>• 只查票<br>• 只查住
+        </div>
     </div>
-    <div class="input-area">
-        <input type="text" id="userInput" placeholder="例如：北京3天2晚，人均1500，喜欢人文古迹不吃辣">
-        <button id="sendBtn">发送规划</button>
+
+    <div class="main-row">
+        <!-- 左侧输入表单 -->
+        <div class="col-card">
+            <div class="card-title">旅行简报</div>
+            <div class="form-row">
+                <div class="form-item">
+                    <label>出发地</label>
+                    <input id="startCity" value="北京">
+                </div>
+                <div class="form-item">
+                    <label>目的地</label>
+                    <input id="endCity" value="郑州">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-item">
+                    <label>开始日期</label>
+                    <input type="date" id="startDate" value="2026-07-10">
+                </div>
+                <div class="form-item">
+                    <label>结束日期</label>
+                    <input type="date" id="endDate" value="2026-07-12">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-item">
+                    <label>人数</label>
+                    <input type="number" id="personNum" value="3" min="1">
+                </div>
+                <div class="form-item">
+                    <label>总预算</label>
+                    <input type="number" id="budget" value="10000" min="0">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-item">
+                    <label>请求类型</label>
+                    <select id="reqType">
+                        <option value="full">完整方案</option>
+                        <option value="train">仅查询火车票</option>
+                        <option value="flight">仅查询机票</option>
+                        <option value="hotel">仅查询住宿</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-full">
+                <label>出行偏好</label>
+                <textarea id="pref" placeholder="每行写一个偏好，例如：酒店靠近地铁 / 想吃本地美食 / 尽量减少换乘">酒店靠近地铁、想吃本地美食、少赶路、偏爱人文古迹</textarea>
+            </div>
+            <button id="genBtn">生成专属旅行方案</button>
+        </div>
+
+        <!-- 右侧结果面板 -->
+        <div class="col-card">
+            <div class="card-title">旅行方案结果</div>
+            <div id="resultBox">
+                <div class="loading-tip">填写左侧信息后点击生成，后端自动调用天行机票API+12306火车票接口，由大模型生成全套行程</div>
+            </div>
+        </div>
     </div>
 </div>
+
 <script>
-const chatBox = document.getElementById('chatBox');
-const userInput = document.getElementById('userInput');
-const sendBtn = document.getElementById('sendBtn');
+const API_BASE = "";
+const genBtn = document.getElementById('genBtn');
+const resultBox = document.getElementById('resultBox');
 
-function addMsg(type,text){
-    const div = document.createElement('div');
-    div.style.margin = '8px 0';
-    div.innerHTML = type==='user' ? `👤 ${text}` : `🤖 ${text}`;
-    chatBox.appendChild(div);
-    chatBox.scrollTop = chatBox.scrollHeight;
-}
+genBtn.onclick = async ()=>{
+    const startCity = document.getElementById('startCity').value.trim();
+    const endCity = document.getElementById('endCity').value.trim();
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    const personNum = document.getElementById('personNum').value;
+    const budget = document.getElementById('budget').value;
+    const reqType = document.getElementById('reqType').value;
+    const pref = document.getElementById('pref').value.trim();
 
-sendBtn.onclick = ()=>{
-    const text = userInput.value.trim();
-    if(!text)return;
-    addMsg('user',text);
-    userInput.value = '';
-    setTimeout(()=>{
-        addMsg('bot',`已根据需求生成专属旅游行程：
-目的地：${text.split('，')[0]}
-✅ Day1：核心地标打卡+特色正餐
-✅ Day2：小众景点+当地小吃
-✅ Day3：文创街区+伴手礼采购
-住宿推荐：商圈便捷型酒店，总预算贴合你的要求~`);
-    },1000)
+    if(!startCity||!endCity||!startDate||!endDate){
+        alert('请补全出发地、目的地、起止日期');
+        return;
+    }
+
+    genBtn.disabled = true;
+    resultBox.innerHTML = `<div class="loading-tip">正在调用机票/火车票API，大模型正在生成规划，请稍候...</div>`;
+
+    try{
+        const res = await fetch(`${API_BASE}/api/travel`,{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+                startCity,endCity,startDate,endDate,personNum,budget,reqType,pref
+            })
+        });
+        const data = await res.json();
+        resultBox.innerHTML = data.html;
+    }catch(err){
+        resultBox.innerHTML = `<div style="color:#e64340;padding:20px;">请求异常：${err.message}<br>请确认后端接口已部署并开启</div>`;
+    }finally{
+        genBtn.disabled = false;
+    }
 }
-userInput.onkeydown = e=>e.key==='Enter'&&sendBtn.click();
 </script>
 </body>
 </html>
