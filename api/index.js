@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import axios from 'axios';
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -74,7 +75,117 @@ app.post('/api', async (req, res) => {
     }
 });
 
-// ===================== 新增客服后台全部功能接口 =====================
+// ===================== 新增旅游Agent 后端接口 =====================
+// 天行数据密钥，推荐放进Vercel环境变量 TIANGAPI_KEY 更安全
+const TIANAPI_KEY = process.env.TIANAPI_KEY || "c20043a6f8e24365580c656787878678";
+
+// 调用天行数据 国内机票查询接口
+async function getFlightByTianApi(depCity, arrCity, date) {
+    try {
+        const url = "http://api.tianapi.com/travelflight/index";
+        const res = await axios.get(url, {
+            params: {
+                key: TIANAPI_KEY,
+                depcity: depCity,
+                arrcity: arrCity,
+                date: date
+            }
+        });
+        return res.data.result?.list || [];
+    } catch (err) {
+        console.error("机票API调用失败", err);
+        return [];
+    }
+}
+
+// 公开免费12306火车票查询接口
+async function getTrainTicket(start, end, date) {
+    try {
+        const resp = await axios.get(`http://api.btstu.cn/train/search.php`, {
+            params: { start, end, date }
+        });
+        return resp.data.result || [];
+    } catch (e) {
+        console.error("火车票API调用失败", e);
+        return [];
+    }
+}
+
+// 旅游方案生成接口
+app.post('/api/travel', async (req, res) => {
+    const { startCity, endCity, startDate, endDate, personNum, budget, reqType, pref } = req.body;
+    let flightList = [];
+    let trainList = [];
+
+    // 根据请求类型拉取对应票务数据
+    if (reqType === "full" || reqType === "flight") {
+        flightList = await getFlightByTianApi(startCity, endCity, startDate);
+    }
+    if (reqType === "full" || reqType === "train") {
+        trainList = await getTrainTicket(startCity, endCity, startDate);
+    }
+
+    // 构造强约束Prompt，强制大模型只输出页面可用HTML
+    const prompt = `
+你是专业旅游规划师，严格根据下方真实票务接口数据+用户出行需求，**仅输出纯HTML代码**，禁止任何多余解释、markdown格式、前言后语。
+页面已有固定CSS样式，只能使用下面指定class：
+.result-block 每个大板块外层容器
+.item-line 单条机票/火车票/住宿条目行
+.date-item 单条天气信息行
+.day-plan 单日行程区块
+
+用户出行信息：
+出发地：${startCity}
+目的地：${endCity}
+行程时间段：${startDate} ~ ${endDate}
+出行人数：${personNum}
+总预算：${budget}
+个人出行偏好：${pref}
+
+接口实时获取机票JSON数据：${JSON.stringify(flightList)}
+接口实时获取火车票JSON数据：${JSON.stringify(trainList)}
+
+必须按顺序生成以下10个板块HTML结构：
+1.方案摘要
+2.方案亮点
+3.票务候选（机票、火车票逐条罗列）
+4.住宿候选（结合目的地与总预算推荐2-3家酒店）
+5.行程纲要
+6.天气与体感（按照行程起止日期生成对应日期天气）
+7.提醒与风险
+8.出行准备清单
+9.每日分天详细行程
+10.下一步建议动作
+
+所有班次时间、票价、车次优先使用接口返回真实数据，接口无数据时合理填充内容。
+`;
+
+    // 复用项目现有BWAI大模型接口生成内容
+    const apiKey = process.env.BWAI_API_KEY;
+    const model = process.env.BWAI_MODEL || 'gpt-5.4-mini';
+    try {
+        const llmResp = await fetch('https://app.bwai.shop/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model,
+                messages: [
+                    { role: "user", content: prompt }
+                ]
+            })
+        });
+        const llmData = await llmResp.json();
+        const htmlStr = llmData.choices?.[0]?.message?.content || "<div>生成行程失败，请重试</div>";
+        res.json({ html: htmlStr });
+    } catch (err) {
+        res.status(500).json({ html: `<div style="color:red;">接口调用异常：${err.message}</div>` });
+    }
+});
+
+// ===================== 原有客服后台全部功能接口 完全保留 =====================
 // 1. 功能菜单
 app.get("/api/funcMenu", (req, res) => {
     res.json({
