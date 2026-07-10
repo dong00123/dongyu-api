@@ -10,11 +10,26 @@ app.use(cors());
 app.use(express.static(publicPath));
 app.use(express.json({ limit: '10mb' }));
 
+// ===================== 修复：静默处理 favicon.ico =====================
+app.get('/favicon.ico', (req, res) => {
+    res.status(204).end(); // 204 No Content，不产生任何日志噪音
+});
+
+// ===================== 修复：统一 404 处理 =====================
+app.use((req, res, next) => {
+    // 如果是 API 请求，返回 JSON 格式的 404
+    if (req.path.startsWith('/api')) {
+        return res.status(404).json({ error: '接口不存在' });
+    }
+    // 页面请求返回 HTML 404（可自定义）
+    res.status(404).sendFile(`${publicPath}/404.html`) || res.status(404).send('页面不存在');
+});
+
 app.get('/', (req, res) => {
     res.sendFile(`${publicPath}/index.html`);
 });
 
-// 原有对话接口（保留不变，客服聊天调用这个）
+// 原有对话接口
 app.post('/api', async (req, res) => {
     const { query, imageBase64 } = req.body;
 
@@ -75,15 +90,23 @@ app.post('/api', async (req, res) => {
     }
 });
 
-// ===================== 新增旅游Agent 后端接口 =====================
-// 修复变量名拼写错误：TIANAPI_KEY
-const TIANAPI_KEY = process.env.TIANAPI_KEY || "c20043a6f8e24365580c656787878678";
+// ===================== 旅游Agent 后端接口 =====================
+// ✅ 修复：只从环境变量读取，不硬编码
+const TIANAPI_KEY = process.env.TIANAPI_KEY;
+if (!TIANAPI_KEY) {
+    console.warn('⚠️ 警告：TIANAPI_KEY 未配置，旅游票务功能将不可用');
+}
 
-// 调用天行数据 国内机票查询接口
+// ✅ 修复：添加超时控制
+const axiosInstance = axios.create({
+    timeout: 8000, // 8秒超时
+});
+
 async function getFlightByTianApi(depCity, arrCity, date) {
+    if (!TIANAPI_KEY) return [];
     try {
         const url = "http://api.tianapi.com/travelflight/index";
-        const res = await axios.get(url, {
+        const res = await axiosInstance.get(url, {
             params: {
                 key: TIANAPI_KEY,
                 depcity: depCity,
@@ -93,16 +116,17 @@ async function getFlightByTianApi(depCity, arrCity, date) {
         });
         return res.data.result?.list || [];
     } catch (err) {
-        console.error("机票API调用失败", err);
+        // ✅ 修复：只打印一次错误，不循环打印
+        console.error("机票API调用失败");
         return [];
     }
 }
 
-// 【重要修改】统一使用天行官方火车票接口，移除不稳定的btstu免费接口
 async function getTrainTicket(start, end, date) {
+    if (!TIANAPI_KEY) return [];
     try {
         const url = "http://api.tianapi.com/train/index";
-        const resp = await axios.get(url, {
+        const resp = await axiosInstance.get(url, {
             params: {
                 key: TIANAPI_KEY,
                 start: start,
@@ -112,7 +136,7 @@ async function getTrainTicket(start, end, date) {
         });
         return resp.data.result?.list || [];
     } catch (e) {
-        console.error("火车票API调用失败", e);
+        console.error("火车票API调用失败");
         return [];
     }
 }
@@ -123,7 +147,6 @@ app.post('/api/travel', async (req, res) => {
     let flightList = [];
     let trainList = [];
 
-    // 根据请求类型拉取对应票务数据
     if (reqType === "full" || reqType === "flight") {
         flightList = await getFlightByTianApi(startCity, endCity, startDate);
     }
@@ -131,7 +154,6 @@ app.post('/api/travel', async (req, res) => {
         trainList = await getTrainTicket(startCity, endCity, startDate);
     }
 
-    // 构造强约束Prompt，新增兜底强制生成规则，杜绝无数据空白提示
     const prompt = `
 你是专业旅游规划师，严格根据下方真实票务接口数据+用户出行需求，**仅输出纯HTML代码**，禁止任何多余解释、markdown格式、前言后语。
 页面已有固定CSS样式，只能使用下面指定class：
@@ -142,7 +164,7 @@ app.post('/api/travel', async (req, res) => {
 
 【强制兜底硬性要求，必须遵守】
 1. 如果机票数组flightList为空，必须手动生成2条合理航班信息，用item-line格式写入票务候选；
-2. 如果火车票数组trainList为空，必须手动生成3条高铁车次（包含出发时间、到达时间、行程时长、二等座单价），逐条展示，绝对不能只写“无实时数据”；
+2. 如果火车票数组trainList为空，必须手动生成3条高铁车次（包含出发时间、到达时间、行程时长、二等座单价），逐条展示，绝对不能只写"无实时数据"；
 3. 所有板块严格按顺序输出，只输出HTML，不要任何额外文字说明。
 
 用户出行信息：
@@ -171,7 +193,6 @@ app.post('/api/travel', async (req, res) => {
 所有班次时间、票价、车次优先使用接口返回真实数据，接口无数据时必须自行填充合理内容。
 `;
 
-    // 复用项目现有BWAI大模型接口生成内容
     const apiKey = process.env.BWAI_API_KEY;
     const model = process.env.BWAI_MODEL || 'gpt-5.4-mini';
     try {
@@ -196,8 +217,7 @@ app.post('/api/travel', async (req, res) => {
     }
 });
 
-// ===================== 原有客服后台全部功能接口 完全保留 =====================
-// 1. 功能菜单
+// ===================== 原有客服后台全部功能接口 =====================
 app.get("/api/funcMenu", (req, res) => {
     res.json({
         list: ["订单查询", "产品推荐", "退款处理", "知识查询", "转人工"],
@@ -205,7 +225,6 @@ app.get("/api/funcMenu", (req, res) => {
     })
 })
 
-// 2. 知识管理 获取知识库列表
 app.get("/api/knowledge", (req, res) => {
     res.json({
         list: [
@@ -215,14 +234,13 @@ app.get("/api/knowledge", (req, res) => {
         ]
     })
 })
-// 新增知识库条目
+
 app.post("/api/knowledge", (req, res) => {
     const { question, answer } = req.body;
     if (!question || !answer) return res.status(400).json({ error: "问题和答案不能为空" });
     res.json({ code: 0, msg: "知识添加成功", data: { question, answer } })
 })
 
-// 3. 机器人管理
 app.get("/api/robot", (req, res) => {
     res.json({
         robots: [
@@ -231,13 +249,10 @@ app.get("/api/robot", (req, res) => {
     })
 })
 
-// 4. 渠道管理
 app.get("/api/channel", (req, res) => {
     res.json({ channels: ["网页客服", "小程序", "APP内嵌客服"] })
 })
 
-// 5. 工单管理
-// 获取工单列表
 app.get("/api/ticket", (req, res) => {
     res.json({
         list: [
@@ -246,7 +261,7 @@ app.get("/api/ticket", (req, res) => {
         ]
     })
 })
-// 创建工单
+
 app.post("/api/ticket", (req, res) => {
     const { userName, content } = req.body;
     if (!userName || !content) return res.status(400).json({ error: "用户与工单内容不能为空" });
@@ -254,7 +269,6 @@ app.post("/api/ticket", (req, res) => {
     res.json({ code: 0, ticketId, msg: "工单创建成功，客服将尽快处理" })
 })
 
-// 6. 数据分析看板
 app.get("/api/data", (req, res) => {
     res.json({
         totalChat: 1562,
@@ -264,7 +278,6 @@ app.get("/api/data", (req, res) => {
     })
 })
 
-// 7. 系统全局配置
 app.get("/api/config", (req, res) => {
     res.json({
         welcomeText: "你好，我是智能客服机器人v3.0",
@@ -274,12 +287,10 @@ app.get("/api/config", (req, res) => {
     })
 })
 
-// 8. 角色权限
 app.get("/api/role", (req, res) => {
     res.json({ roles: ["超级管理员", "客服专员", "只读查看员"] })
 })
 
-// 9. 操作&对话日志
 app.get("/api/log", (req, res) => {
     res.json({
         logs: [
@@ -289,7 +300,6 @@ app.get("/api/log", (req, res) => {
     })
 })
 
-// 启动服务
 app.listen(port, '0.0.0.0', () => {
-    console.log(`服务启动在端口 ${port}`);
+    console.log(`✅ 服务启动在端口 ${port}`);
 });
